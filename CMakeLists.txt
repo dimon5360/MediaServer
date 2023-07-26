@@ -1,18 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 project(app LANGUAGES CXX VERSION 2.0.0)
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++-15")
+set(CMAKE_C_COMPILER "/usr/bin/clang-15")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(Boost_USE_STATIC_LIBS ON)
 
-if (APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -stdlib=libc++ -pthread -fcoroutines-ts")
-endif (APPLE)
-
-if (LINUX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -pthread -fcoroutines -spdlog")
-endif (LINUX)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
 find_package(spdlog REQUIRED)
@@ -39,11 +33,8 @@ FILE(GLOB SOURCES
 include_directories (
     ${INCLUDES}
     ${Boost_INCLUDE_DIR}
+    "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0"
 )
-
-if (APPLE)
-    link_directories(/usr/local/lib /opt/homebrew/Cellar/boost/1.81.0_1/lib)
-endif (APPLE)
 
 message(STATUS "system: ${CMAKE_SYSTEM}")
 message(STATUS "build_type: ${CMAKE_BUILD_TYPE}")
@@ -60,6 +51,8 @@ message(STATUS)
 message(STATUS "compiler:")
 message(STATUS " - ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS " - ${CMAKE_CXX_COMPILER}")
+message(STATUS " - ${CMAKE_C_COMPILER}")
+message(STATUS " - ${CMAKE_CXX_FLAGS}")
 message(STATUS)
 message(STATUS "cmake:")
 message(STATUS " - ${CMAKE_VERSION}")

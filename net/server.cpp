@@ -1,8 +1,12 @@
 
+#include <spdlog/spdlog.h>
+#include <boost/bind.hpp>
 
 #include "server.h"
 
 namespace Net {
+
+using namespace boost::asio;
 
 void Server::init(service& ios, const endpoint& endp)
 {
@@ -10,11 +14,10 @@ void Server::init(service& ios, const endpoint& endp)
 }
 
 Server::Server(service& ios, const endpoint& endp)
-    : ios(ios) 
+    : ios(std::ref(ios)) 
     , acceptor(ios, endp)
-    , socket(ios)
 {
-    spdlog::debug("Server class contructor");
+    spdlog::info("Server class contructor");
 
     listen();
     ios.run();
@@ -23,21 +26,22 @@ Server::Server(service& ios, const endpoint& endp)
 
 Server::~Server() 
 {
-    spdlog::debug("Server class destructor");
+    spdlog::info("Server class destructor");
 }
 
 void Server::listen() 
 {
-    acceptor.async_accept(
-        socket, [&](boost::beast::error_code ec) 
-        {
-            if (!ec) 
-            {
-                spdlog::info("Connection accepted");
-            }
-            listen();
-        }
-    );
-}
+    spdlog::info("wait new client ...");
 
+    Client::cli_ptr client = ClientFactory::instance().newClient(ios);
+
+    acceptor.async_accept(client->socket(), [&](boost::system::error_code ec) {
+        if (!ec) 
+        {
+            client->run();
+            spdlog::info("Connection accepted");
+        }
+        listen();
+    });
+}
 }

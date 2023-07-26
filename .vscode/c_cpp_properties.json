@@ -6,21 +6,19 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/core/**",
                 "${workspaceFolder}/net/**",
-                "${workspaceFolder}/config/**",
-                "${workspaceFolder}/core"
+                "${workspaceFolder}/config/**"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang++",
-            "cStandard": "c23",
-            "cppStandard": "c++23",
-            "intelliSenseMode": "linux-clang-x64",
+            "compilerPath": "/usr/bin/clang++-15",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/core/**",
                     "${workspaceFolder}/net/**",
-                    "${workspaceFolder}/config/**",
-                    "/usr/local/include/**"
+                    "${workspaceFolder}/config/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }

@@ -1,11 +1,9 @@
 
-#pragma once
+#ifndef NET_SERVER_H
+#define NET_SERVER_H
 
-#include "config.h"
+#include "client.h"
 
-#include <memory>
-
-#include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
@@ -32,6 +30,7 @@ public:
 private:
 
     Server(service& ios, const endpoint& endp);
+
     void listen();
 
 private:
@@ -39,7 +38,7 @@ private:
 
     boost::asio::io_service& ios;
     boost::asio::ip::tcp::acceptor acceptor;
-    boost::asio::ip::tcp::socket socket;
-
 };
 }
+
+#endif // NET_SERVER_H

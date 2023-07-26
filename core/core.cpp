@@ -6,6 +6,9 @@
 #include <boost/asio/post.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <atomic>
+#include <concepts>
+
 #include "core.h"
 #include "config.h"
 #include "server.h"
@@ -14,11 +17,11 @@
 namespace App {
 
 Core::Core() {
-    spdlog::debug("Config class constructor");
+    spdlog::info("Config class constructor");
 }
 
 Core::~Core() {
-    spdlog::debug("Config class destructor");
+    spdlog::info("Config class destructor");
 }
 
 const Core& Core::instance() {
