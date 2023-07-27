@@ -8,20 +8,44 @@ namespace Net {
 
 using namespace boost::asio;
 
-void Server::init(service& ios, const endpoint& endp)
+std::shared_ptr<Server> Server::init(service& ios, const endpoint& endp)
 {
-    static std::unique_ptr<Server> server(new Server(ios, endp));
+    static std::shared_ptr<Server> server(new Server(ios, endp));
+    return server;
 }
 
 Server::Server(service& ios, const endpoint& endp)
-    : ios(std::ref(ios)) 
-    , acceptor(ios, endp)
+    : ios(ios) 
+    , acceptor_(boost::asio::make_strand(ios))
+    , doc_root_(std::make_shared<std::string const>("/"))
 {
     spdlog::info("Server class contructor");
+    beast::error_code ec;
 
-    listen();
-    ios.run();
+    acceptor_.open(endp.protocol(), ec);
+    if(ec) {
+        spdlog::error("Server error: {}", ec.message());
+        return;
+    }
+
+    acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
+    if(ec) {
+        spdlog::error("Server error: {}", ec.message());
+        return;
+    }
     
+    acceptor_.bind(endp, ec);
+    if(ec) {
+        spdlog::error("Server error: {}", ec.message());
+        return;
+    }
+
+    acceptor_.listen(
+        boost::asio::socket_base::max_listen_connections, ec);
+    if(ec) {
+        spdlog::error("Server error: {}", ec.message());
+        return;
+    }
 }
 
 Server::~Server() 
@@ -29,19 +53,38 @@ Server::~Server()
     spdlog::info("Server class destructor");
 }
 
-void Server::listen() 
+void Server::run() noexcept
+{
+    try {
+
+        start_accept();
+    }
+    catch(const std::exception& ex) {
+
+        spdlog::error("catch exception: {}", ex.what());
+    }
+}
+
+void Server::start_accept() 
 {
     spdlog::info("wait new client ...");
 
-    Client::cli_ptr client = ClientFactory::instance().newClient(ios);
+    acceptor_.async_accept(boost::asio::make_strand(ios), 
+        beast::bind_front_handler(
+            &Server::handle_accept, 
+            shared_from_this()));
 
-    acceptor.async_accept(client->socket(), [&](boost::system::error_code ec) {
-        if (!ec) 
-        {
-            client->run();
-            spdlog::info("Connection accepted");
-        }
-        listen();
-    });
+}
+
+void Server::handle_accept(beast::error_code ec, tcp::socket socket) 
+{        
+    if (ec) {
+        spdlog::error("Server error: {}", ec.message());
+        return;
+    }
+
+    spdlog::info("Connection accepted");
+    std::make_shared<Session>(std::move(socket), doc_root_)->run();
+    start_accept();
 }
 }

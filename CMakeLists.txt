@@ -20,6 +20,7 @@ set(INCLUDES
     ${workspaceFolder}
     ${workspaceFolder}core/
     ${workspaceFolder}net/
+    ${workspaceFolder}handlers/
     ${workspaceFolder}config/
 )
 
@@ -27,14 +28,16 @@ FILE(GLOB SOURCES
     ${workspaceFolder}*.cpp
     ${workspaceFolder}core/*.cpp
     ${workspaceFolder}net/*.cpp
+    ${workspaceFolder}handlers/*.cpp
     ${workspaceFolder}config/*.cpp
 )
 
 include_directories (
     ${INCLUDES}
     ${Boost_INCLUDE_DIR}
-    "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0"
 )
+
+set(BoostLibs ${Boost_LIBRARIES} ${Boost_DATE_TIME_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 message(STATUS "system: ${CMAKE_SYSTEM}")
 message(STATUS "build_type: ${CMAKE_BUILD_TYPE}")
@@ -45,7 +48,7 @@ message(STATUS " - ${PROJECT_BINARY_DIR}")
 
 message(STATUS " - ${Boost_DIR}")
 message(STATUS " - ${Boost_INCLUDE_DIR}")
-message(STATUS " - ${Boost_LIBRARIES}")
+message(STATUS " - ${BoostLibs}")
 
 message(STATUS)
 message(STATUS "compiler:")
@@ -61,8 +64,6 @@ message(STATUS " - ${CMAKE_TOOLCHAIN_FILE}")
 message(STATUS " - ${CMAKE_GENERATOR}")
 message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
-
-set(BoostLibs ${Boost_LIBRARIES} ${Boost_DATE_TIME_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
 target_link_libraries(app ${BoostLibs} spdlog::spdlog)

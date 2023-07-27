@@ -8,6 +8,8 @@
 
 #include <atomic>
 #include <concepts>
+#include <vector>
+#include <thread>
 
 #include "core.h"
 #include "config.h"
@@ -43,27 +45,21 @@ void Core::run() const noexcept {
     const ip::address ipaddr = ip::make_address(host);
     const u16 ipport = boost::lexical_cast<u16>(port);
 
-    io_context ioc;
+    const int N = boost::thread::hardware_concurrency();
+
+    boost::asio::io_service ios{ N };
+
     ip::tcp::endpoint endp{ipaddr, ipport};
-
-    boost::thread_group threads;
-    io_context::work work(ioc);
-    signal_set signals(work.get_io_context(), SIGINT, SIGTERM);
-
-    for (unsigned int i = 0; i < boost::thread::hardware_concurrency(); ++i) {
-        threads.create_thread([&]() {
-            work.get_io_context().run();
+    Server::init(ios, endp)->run();
+    
+    std::vector<std::thread> v;
+    v.reserve(N - 1);
+    for(auto i = N - 1; i > 0; --i)
+        v.emplace_back(
+        [&ios]
+        {
+            ios.run();
         });
-    }
-
-    boost::asio::post(work.get_io_context(), [&]() {
-        Net::Server::init(work.get_io_context(), endp);
-    });
-
-    signals.async_wait([&](const boost::system::error_code& error, int signal_number) {
-        work.get_io_context().stop();
-    });
-
-    threads.join_all();
+    ios.run();
 }
 }
