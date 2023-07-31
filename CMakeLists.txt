@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(Boost_USE_STATIC_LIBS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -pthread")
 
 find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
 find_package(spdlog REQUIRED)

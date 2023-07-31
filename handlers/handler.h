@@ -14,15 +14,19 @@ namespace http = beast::http;
 class Request {
 
 public:
-    Request(http::request<http::string_body> && req_, const std::string& doc_root);
+
+    Request(http::request<http::string_body>&& req, const std::string& doc_root);
+
     ~Request();
 
-    void handle();
+    // template<class Body, class Allocator>
+    http::message_generator handle();
 
 private:
     
     http::request<http::string_body> request_;
     std::string doc_root_;
+
 };
 
 }
