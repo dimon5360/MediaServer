@@ -37,8 +37,9 @@ void Core::run() const noexcept {
     using Server = Net::Server;
     using namespace boost::asio;
 
-    const std::string host{ Config::instance()->getValue("HOST") };
-    const std::string port{ Config::instance()->getValue("PORT") };
+    decltype(auto) config(Config::instance());
+    const std::string host{ (*config)["HOST"] };
+    const std::string port{ (*config)["PORT"] };
 
     spdlog::info("Start server listening {}:{}", host, port);
 
@@ -48,17 +49,26 @@ void Core::run() const noexcept {
     const int N = boost::thread::hardware_concurrency();
 
     boost::asio::io_service ios{ N };
-
     ip::tcp::endpoint endp{ ipaddr, ipport };
-    Server::init(ios, endp)->run();
 
-    std::vector<std::thread> v;
-    v.reserve(N - 1);
-    for (auto i = N - 1; i > 0; --i)
-        v.emplace_back(
-            [&ios] {
-        ios.run();
+    boost::thread_group threads;
+    io_context::work work(ios);
+    signal_set signals(work.get_io_context(), SIGINT, SIGTERM);
+
+    for (unsigned int i = 0; i < boost::thread::hardware_concurrency(); ++i) {
+        threads.create_thread([&]() {
+            work.get_io_context().run();
+        });
+    }
+
+    boost::asio::post(work.get_io_context(), [&]() {
+        Server::init(work.get_io_context(), endp)->run();
     });
-    ios.run();
+
+    signals.async_wait([&](const boost::system::error_code& error, int signal_number) {
+        work.get_io_context().stop();
+    });
+
+    threads.join_all();
 }
 }

@@ -1,6 +1,7 @@
 
 #include "get_request_handler.h"
 
+#include <iostream>
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
 

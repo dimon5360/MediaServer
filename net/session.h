@@ -2,6 +2,8 @@
 #ifndef NET_SESSION_H
 #define NET_SESSION_H
 
+#include "handler.h"
+
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -55,6 +57,14 @@ private:
 
     void fail(beast::error_code ec, std::string&& info);
     void close_session();
+
+private:
+
+    template<typename T = Handler::IRequest>
+    void process(const std::shared_ptr<Net::Handler::IRequest> reqHandler) {
+        auto h = static_cast<T*>(reqHandler.get());
+        start_write(h->handle(std::move(request_), *doc_root_));
+    }
 
 private:
 

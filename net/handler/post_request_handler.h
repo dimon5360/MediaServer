@@ -6,14 +6,14 @@
 
 namespace Net::Handler {
 
-class SetRequest : public IRequest {
+class PostRequest : public IRequest {
 
     using IRequest::IRequest;
 
 public:
 
-    explicit SetRequest();
-    ~SetRequest();
+    explicit PostRequest();
+    ~PostRequest();
 
     http::message_generator handle(http::request<http::string_body>&& req, const std::string& doc_root) override;
 

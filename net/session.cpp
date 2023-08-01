@@ -1,6 +1,6 @@
 
 #include "session.h"
-#include "handler.h"
+#include "router.h"
 
 #include <boost/asio/buffer.hpp>
 #include <spdlog/spdlog.h>
@@ -53,10 +53,17 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
     if (ec)
         return fail(ec, "read");
 
-    start_write(std::make_unique<Handler::GetRequest>()->handle(std::move(request_), *doc_root_));
+    decltype(auto) reqHandler = (*Router::instance())[request_.target()];
 
+    switch (request_.method()) {
+    case http::verb::get:
+        process<Handler::GetRequest>(reqHandler); break;
+    case http::verb::post:
+        process<Handler::GetRequest>(reqHandler); break;
+    default:
+        process(reqHandler); break;
+    }
 }
-
 
 void Session::start_write(http::message_generator&& msg) {
     bool keep_alive = msg.keep_alive();

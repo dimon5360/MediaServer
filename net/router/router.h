@@ -8,13 +8,13 @@
 #include <memory>
 #include <map>
 
-namespace Net::Router {
+namespace Net {
 
 class Router {
 
 public:
 
-    static std::shared_ptr<Router> create();
+    static std::shared_ptr<Router> instance();
 
     Router(const Router&) = delete;
     Router(Router&&) = delete;
@@ -23,12 +23,20 @@ public:
 
     ~Router();
 
+    template<typename T = std::string>
+    const std::shared_ptr<Net::Handler::IRequest> operator[](T&& key) const {
+        return api_.at(key);
+    }
+
 private:
 
     Router();
 
+    void initRouting();
+
 private:
-    std::map<std::string, std::unique_ptr<Net::Handler::IRequest>> api;
+
+    std::map<std::string, std::shared_ptr<Net::Handler::IRequest>> api_;
 };
 
 }

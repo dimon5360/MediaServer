@@ -3,6 +3,7 @@
 #include <boost/bind.hpp>
 
 #include "server.h"
+#include "router.h"
 
 namespace Net {
 
@@ -45,6 +46,8 @@ Server::Server(service& ios, const endpoint& endp)
         spdlog::error("Server error: {}", ec.message());
         return;
     }
+
+    Router::instance();
 }
 
 Server::~Server() {

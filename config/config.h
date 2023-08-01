@@ -14,11 +14,11 @@
 
 namespace App {
 
-class Config {
+class Config : public std::enable_shared_from_this<Config> {
 
 public:
 
-    static std::shared_ptr<Config> instance();
+    static std::shared_ptr<const Config> instance();
 
     Config(const Config&) = delete;
     Config(Config&&) = delete;
@@ -28,15 +28,15 @@ public:
     ~Config();
 
     template<typename ... Ts>
-    void parseEnv(Ts ... args) const {
+    std::shared_ptr<const Config> parseEnv(Ts ... args) const {
 
         std::vector<std::common_type_t<Ts...>> vec_{ args... };
-        for (const auto& path : vec_) {
+        for (const auto& file : vec_) {
 
-            std::fstream f(path, std::ios_base::in);
+            std::fstream f(file, std::ios_base::in);
             if (!f.is_open()) {
-                spdlog::error("Faild open config file");
-                return;
+                spdlog::error("Faild open config file '{}", file);
+                return shared_from_this();
             }
 
             typedef std::vector<std::string> Tokens;
@@ -51,15 +51,16 @@ public:
 
             f.close();
         }
+        return shared_from_this();
     }
-    const std::string& getValue(std::string&& key) const;
 
+    template<typename T = std::string>
+    const std::string& operator[](T&& key) const {
+        return m_.at(key);
+    }
 private:
 
     Config();
-
-
-public:
 
 private:
 

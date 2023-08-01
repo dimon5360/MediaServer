@@ -1,16 +1,16 @@
 
-#include "set_request_handler.h"
+#include "post_request_handler.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
 
 namespace Net::Handler {
 
-SetRequest::SetRequest() : IRequest() {
+PostRequest::PostRequest() : IRequest() {
     spdlog::info("SetRequest class constructor");
 }
 
-SetRequest::~SetRequest() {
+PostRequest::~PostRequest() {
     spdlog::info("SetRequest class destructor");
 }
 
@@ -25,7 +25,7 @@ http::response<Body> wrong_request(T&& fmt, http::request<Body, http::basic_fiel
     return res;
 }
 
-http::message_generator SetRequest::handle(http::request<http::string_body>&& request_, const std::string& doc_root_) {
+http::message_generator PostRequest::handle(http::request<http::string_body>&& request_, const std::string& doc_root_) {
     if (request_.method() != http::verb::get &&
         request_.method() != http::verb::head) {
         return wrong_request(std::string("Unknown HTTP-method"), request_);
