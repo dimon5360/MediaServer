@@ -26,8 +26,8 @@ Core::~Core() {
     spdlog::info("Config class destructor");
 }
 
-const Core& Core::instance() {
-    static Core core;
+std::shared_ptr<Core> Core::create() {
+    static std::shared_ptr<Core> core(new Core());
     return core;
 }
 
@@ -37,8 +37,8 @@ void Core::run() const noexcept {
     using Server = Net::Server;
     using namespace boost::asio;
 
-    const std::string host{ Config::instance().getValue("HOST") };
-    const std::string port{ Config::instance().getValue("PORT") };
+    const std::string host{ Config::instance()->getValue("HOST") };
+    const std::string port{ Config::instance()->getValue("PORT") };
 
     spdlog::info("Start server listening {}:{}", host, port);
 
@@ -49,17 +49,16 @@ void Core::run() const noexcept {
 
     boost::asio::io_service ios{ N };
 
-    ip::tcp::endpoint endp{ipaddr, ipport};
+    ip::tcp::endpoint endp{ ipaddr, ipport };
     Server::init(ios, endp)->run();
-    
+
     std::vector<std::thread> v;
     v.reserve(N - 1);
-    for(auto i = N - 1; i > 0; --i)
+    for (auto i = N - 1; i > 0; --i)
         v.emplace_back(
-        [&ios]
-        {
-            ios.run();
-        });
+            [&ios] {
+        ios.run();
+    });
     ios.run();
 }
 }

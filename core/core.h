@@ -5,18 +5,16 @@
 
 #include <memory>
 
-namespace App
-{
-class Core
-{
+namespace App {
+class Core {
 public:
-    
+
+    static std::shared_ptr<Core> create();
+
     Core(const Core&) = delete;
     Core(Core&&) = delete;
     const Core& operator=(const Core&) = delete;
     Core&& operator=(Core&&) = delete;
-
-    static const Core &instance();
 
     ~Core();
 

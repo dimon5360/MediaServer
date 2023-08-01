@@ -6,6 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/core/**",
                 "${workspaceFolder}/net/**",
+                "${workspaceFolder}/net/handler/**",
+                "${workspaceFolder}/net/router/**",
                 "${workspaceFolder}/config/**"
             ],
             "defines": [],
@@ -18,6 +20,8 @@
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/core/**",
                     "${workspaceFolder}/net/**",
+                    "${workspaceFolder}/net/handler/**",
+                    "${workspaceFolder}/net/router/**",
                     "${workspaceFolder}/config/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true

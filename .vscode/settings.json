@@ -111,6 +111,8 @@
         "-I${workspaceFolder}/**",
         "-I${workspaceFolder}/core/**",
         "-I${workspaceFolder}/net/**",
+        "${workspaceFolder}/net/handler/**",
+        "${workspaceFolder}/net/router/**",
         "-I${workspaceFolder}/config/**"
     ],
 }

@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef NET_SESSION_H
+#define NET_SESSION_H
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -54,16 +55,18 @@ private:
 
     void fail(beast::error_code ec, std::string&& info);
     void close_session();
-    
+
 private:
 
     std::shared_ptr<std::string const> doc_root_;
 
     beast::tcp_stream stream_;
-    beast::flat_buffer buffer_{8192};
+    beast::flat_buffer buffer_{ 8192 };
 
     http::request<http::string_body> request_;
     http::response<http::string_body> response_;
 };
 
 }
+
+#endif // NET_SESSION_H
