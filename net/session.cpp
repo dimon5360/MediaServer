@@ -15,6 +15,7 @@ Session::Session(tcp::socket&& socket_,
     std::shared_ptr<std::string const> const& doc_root)
     : stream_(std::move(socket_))
     , doc_root_(doc_root) {
+
     spdlog::info("Session class constructor");
 }
 
@@ -51,18 +52,17 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
         return close_session();
 
     if (ec)
-        return fail(ec, "read");
+        return fail(ec, __func__);
 
-    decltype(auto) reqHandler = (*Router::instance())[request_.target()];
-
-    switch (request_.method()) {
-    case http::verb::get:
-        process<Handler::GetRequest>(reqHandler); break;
-    case http::verb::post:
-        process<Handler::GetRequest>(reqHandler); break;
-    default:
-        process(reqHandler); break;
+    try 
+    {
+        start_write(Router::instance()->execute(std::move(request_), *doc_root_));
+    } 
+    catch (std::exception &ex) 
+    {
+        spdlog::info("Exteption caught: {}", ex.what());
     }
+
 }
 
 void Session::start_write(http::message_generator&& msg) {
@@ -78,11 +78,13 @@ void Session::start_write(http::message_generator&& msg) {
 void Session::handle_write(
     bool keep_alive,
     beast::error_code ec,
-    std::size_t bytes_transferred) {
+    std::size_t bytes_transferred) 
+{
+
     boost::ignore_unused(bytes_transferred);
 
     if (ec)
-        return fail(ec, "write");
+        return fail(ec, __func__);
 
     if (!keep_alive)
         return close_session();

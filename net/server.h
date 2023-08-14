@@ -17,7 +17,7 @@ class Server : public std::enable_shared_from_this<Server> {
 
 public:
 
-    static std::shared_ptr<Server> init(service& ios, const endpoint& endp);
+    static const std::shared_ptr<Server> init(service& ios, const endpoint& endp);
 
     Server() = delete;
     Server(const Server&) = delete;
@@ -28,6 +28,7 @@ public:
     ~Server();
 
     void run() noexcept;
+    const std::shared_ptr<Server> setup_routing();
 
 private:
 
@@ -35,6 +36,7 @@ private:
 
     void start_accept();
     void handle_accept(beast::error_code ec, tcp::socket socket);
+
 
 private:
 

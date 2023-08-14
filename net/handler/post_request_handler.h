@@ -8,18 +8,32 @@ namespace Net::Handler {
 
 class PostRequest : public IRequest {
 
+    friend class Router;
+
     using IRequest::IRequest;
+
+    using handler = std::function<Handler::http::message_generator(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root)>;
 
 public:
 
-    explicit PostRequest();
-    ~PostRequest();
+    explicit PostRequest(handler custom_handler) 
+        : IRequest() {
 
-    http::message_generator handle(http::request<http::string_body>&& req, const std::string& doc_root) override;
+        this->handler_ = custom_handler;
 
-    std::string path_cat(beast::string_view base, beast::string_view path) override {
-        return IRequest::path_cat(base, path);
+        spdlog::info("PostRequest class constructor");
     }
+    
+    ~PostRequest() {
+        spdlog::info("PostRequest class destructor");
+    }
+
+    http::message_generator execute(http::request<http::string_body>&& request_, const std::string& doc_root_) 
+    {
+        return handler_(std::move(request_), doc_root_);
+    }
+
+    handler handler_ = {};
 };
 
 }

@@ -62,7 +62,7 @@ void Core::run() const noexcept {
     }
 
     boost::asio::post(work.get_io_context(), [&]() {
-        Server::init(work.get_io_context(), endp)->run();
+        Server::init(work.get_io_context(), endp)->setup_routing()->run();
     });
 
     signals.async_wait([&](const boost::system::error_code& error, int signal_number) {

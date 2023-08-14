@@ -10,16 +10,30 @@ class GetRequest : public IRequest {
 
     using IRequest::IRequest;
 
+    using handler = std::function<Handler::http::message_generator(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root)>;
+
 public:
 
-    explicit GetRequest();
-    ~GetRequest();
+    GetRequest(handler custom_handler) 
+        : IRequest() {
 
-    http::message_generator handle(http::request<http::string_body>&& req, const std::string& doc_root) override;
+        this->handler_ = custom_handler;
 
-    std::string path_cat(beast::string_view base, beast::string_view path) override {
-        return IRequest::path_cat(base, path);
+        spdlog::info("GetRequest class constructor");
     }
+
+    ~GetRequest() {
+        spdlog::info("GetRequest class destructor");
+    }
+
+    http::message_generator execute(http::request<http::string_body>&& request_, const std::string& doc_root_) 
+    {
+        return handler_(std::move(request_), doc_root_);
+    }
+
+private:
+
+    handler handler_ = {};
 };
 
 }

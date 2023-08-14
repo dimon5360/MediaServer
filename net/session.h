@@ -60,14 +60,6 @@ private:
 
 private:
 
-    template<typename T = Handler::IRequest>
-    void process(const std::shared_ptr<Net::Handler::IRequest> reqHandler) {
-        auto h = static_cast<T*>(reqHandler.get());
-        start_write(h->handle(std::move(request_), *doc_root_));
-    }
-
-private:
-
     std::shared_ptr<std::string const> doc_root_;
 
     beast::tcp_stream stream_;
