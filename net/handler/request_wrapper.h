@@ -46,7 +46,7 @@ public:
             IRequest::handler handle = this->unwrap();
             return handle(std::move(req), doc_root);
         }
-        catch (std::exception& ex) 
+        catch (const std::invalid_argument& ex) 
         {
             return IRequest::wrong_request(ex.what(), req);
         }
@@ -82,10 +82,10 @@ private:
 		switch (m)
 		{
 			case boost::beast::http::verb::get: {
-				return static_cast<GetRequest*>(ptr.get())->handle;
+				return static_cast<GetRequest*>(ptr.get())->get_handler();
 			}
 			case boost::beast::http::verb::post: {
-				return static_cast<PostRequest*>(ptr.get())->handle;
+				return static_cast<PostRequest*>(ptr.get())->get_handler();
 			}
 			// TODO: add other requests handlers
 			default: {

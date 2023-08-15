@@ -31,12 +31,12 @@ public:
     }
 
     template<typename T, class Body = http::string_body, class Allocator = std::allocator<char>>
-    static http::response<Body> wrong_request(T&& fmt, http::request<Body, http::basic_fields<Allocator>>& req) {
+    static http::response<Body> wrong_request(T&& fmt, const http::request<Body, http::basic_fields<Allocator>>& req) {
         http::response<http::string_body> res{ http::status::bad_request, req.version() };
         res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
         res.set(http::field::content_type, "text/html");
         res.keep_alive(req.keep_alive());
-        res.body() = boost::str(boost::format(fmt));
+        res.body() = boost::str(boost::format(std::forward<T>(fmt)));
         res.prepare_payload();
         return res;
     }

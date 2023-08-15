@@ -2,6 +2,7 @@
 #ifndef NET_SERVER_H
 #define NET_SERVER_H
 
+#include "iserver.h"
 #include "session.h"
 
 #include <boost/beast/core.hpp>
@@ -10,29 +11,29 @@
 
 namespace Net {
 
-class Server : public std::enable_shared_from_this<Server> {
+class HttpServer : public IServer, public std::enable_shared_from_this<HttpServer> {
 
     using endpoint = boost::asio::ip::tcp::endpoint;
     using service = boost::asio::io_service;
 
 public:
 
-    static const std::shared_ptr<Server> init(service& ios, const endpoint& endp);
+    static std::shared_ptr<HttpServer> init(service& ios, const endpoint& endp);
 
-    Server() = delete;
-    Server(const Server&) = delete;
-    Server(Server&&) = delete;
-    const Server& operator=(const Server&) = delete;
-    Server&& operator=(Server&&) = delete;
+    HttpServer() = delete;
+    HttpServer(const HttpServer&) = delete;
+    HttpServer(HttpServer&&) = delete;
+    const HttpServer& operator=(const HttpServer&) = delete;
+    HttpServer&& operator=(HttpServer&&) = delete;
 
-    ~Server();
+    ~HttpServer();
 
     void run() noexcept;
-    const std::shared_ptr<Server> setup_routing();
+    const std::shared_ptr<HttpServer> setup_routing();
 
 private:
 
-    Server(service& ios, const endpoint& endp);
+    HttpServer(service& ios, const endpoint& endp);
 
     void start_accept();
     void handle_accept(beast::error_code ec, tcp::socket socket);

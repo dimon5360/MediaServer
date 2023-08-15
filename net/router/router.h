@@ -24,8 +24,8 @@ public:
     }
 
 	template<boost::beast::http::verb method>
-    void setup_route(const std::string& api, Handler::IRequest::handler handle) {
-        routing_.insert({ api, Handler::RequestWrapper::wrap(method, handle) });
+    void setup_route(const std::string& api, const Handler::IRequest::handler& handle) {
+        routing_.try_emplace(api, Handler::RequestWrapper::wrap(method, handle));
     }
 
 	std::shared_ptr<const Handler::RequestWrapper> operator[](const std::string& api) {
@@ -44,7 +44,7 @@ private:
 
 private:
 
-    std::map<std::string, std::shared_ptr<Handler::RequestWrapper>> routing_;
+    std::map<std::string, std::shared_ptr<Handler::RequestWrapper>, std::less<>> routing_;
 };
 
 }

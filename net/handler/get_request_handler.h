@@ -8,25 +8,31 @@ namespace Net::Handler {
 
 class GetRequest : public IRequest {
 
-    friend class RequestWrapper;
-
     using IRequest::IRequest;
 
 public:
 
-    GetRequest(handler custom_handler) 
-        : IRequest() {
-
-        this->handle = custom_handler;
-
+    explicit GetRequest(const handler& custom_handler) 
+        : IRequest()
+        , handle(custom_handler)
+    {
         spdlog::info("GetRequest class constructor");
     }
 
-    ~GetRequest() {
+    GetRequest(const GetRequest&) = delete;
+    GetRequest(GetRequest&&) = delete;
+    const GetRequest& operator=(const GetRequest&) = delete;
+    GetRequest&& operator=(GetRequest&&) = delete;
+
+    ~GetRequest() override {
         spdlog::info("GetRequest class destructor");
     }
 
-protected:
+    const handler& get_handler() const {
+        return handle;
+    }
+
+private:
 
     handler handle = {};
 };

@@ -1,5 +1,5 @@
 
-#include "server.h"
+#include "http_server.h"
 #include "router.h"
 #include "config.h"
 
@@ -15,50 +15,52 @@ namespace {
     using method = boost::beast::http::verb;
 }
 
-const std::shared_ptr<Server> Server::init(service& ios, const endpoint& endp) {
-    static std::shared_ptr<Server> server(new Server(ios, endp));
+std::shared_ptr<HttpServer> HttpServer::init(service& ios, const endpoint& endp) {
+    static std::shared_ptr<HttpServer> server(new HttpServer(ios, endp));
     return server;
 }
 
-Server::Server(service& ios, const endpoint& endp)
-    : ios(ios)
+HttpServer::HttpServer(service& ios, const endpoint& endp)
+    : IServer()
+    , ios(ios)
     , acceptor_(boost::asio::make_strand(ios))
-    , doc_root_(std::make_shared<std::string const>("/")) {
+{
+    doc_root_= std::make_shared<std::string const>("/");
 
-    spdlog::info("Server class contructor");
+    spdlog::info("HttpServer class contructor");
     beast::error_code ec;
 
     acceptor_.open(endp.protocol(), ec);
     if (ec) {
-        spdlog::error("Server error: {}", ec.message());
+        spdlog::error("HttpServer error: {}", ec.message());
         return;
     }
 
     acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
     if (ec) {
-        spdlog::error("Server error: {}", ec.message());
+        spdlog::error("HttpServer error: {}", ec.message());
         return;
     }
 
     acceptor_.bind(endp, ec);
     if (ec) {
-        spdlog::error("Server error: {}", ec.message());
+        spdlog::error("HttpServer error: {}", ec.message());
         return;
     }
 
     acceptor_.listen(
         boost::asio::socket_base::max_listen_connections, ec);
     if (ec) {
-        spdlog::error("Server error: {}", ec.message());
+        spdlog::error("HttpServer error: {}", ec.message());
         return;
     }
 }
 
-Server::~Server() {
-    spdlog::info("Server class destructor");
+HttpServer::~HttpServer() {
+    spdlog::info("HttpServer class destructor");
 }
 
-void Server::run() noexcept {
+void HttpServer::run() noexcept {
     try {
         start_accept();
     }
@@ -78,13 +80,13 @@ std::string path_cat(beast::string_view base, beast::string_view path) {
     return result;
 }
 
-const std::shared_ptr<Server> Server::setup_routing() 
+const std::shared_ptr<HttpServer> HttpServer::setup_routing() 
 {
     decltype(auto) config = App::Config::instance();
     decltype(auto) router = Router::instance();
     
     router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"], 
-        [&](http::request<http::string_body>&& request_, const std::string& doc_root_) -> Handler::http::message_generator
+        [](http::request<http::string_body>&& request_, const std::string& doc_root) -> Handler::http::message_generator
         {
             auto future = std::async(std::launch::async, []() {
                 // simulate long time operation
@@ -93,7 +95,7 @@ const std::shared_ptr<Server> Server::setup_routing()
 
             future.wait();
 
-            std::string path = path_cat(doc_root_, request_.target());
+            std::string path = path_cat(doc_root, request_.target());
             if (request_.target().back() == '/')
                 path.append("index.html");
 
@@ -129,9 +131,9 @@ const std::shared_ptr<Server> Server::setup_routing()
     );
 
     router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_MAIN"], 
-        [&](http::request<http::string_body>&& request_, const std::string& doc_root_) -> Handler::http::message_generator
+        [](http::request<http::string_body>&& request_, const std::string& doc_root) -> Handler::http::message_generator
         {
-            std::string path = path_cat(doc_root_, request_.target());
+            std::string path = path_cat(doc_root, request_.target());
             if (request_.target().back() == '/')
                 path.append("index.html");
 
@@ -140,10 +142,10 @@ const std::shared_ptr<Server> Server::setup_routing()
             body.open(path.c_str(), beast::file_mode::scan, ec);
 
             if (beast::errc::no_such_file_or_directory == ec)
-                return Handler::IRequest::wrong_request(boost::format("The resourse '%1%' was not found.") % request_.target(), request_);
+                return Handler::IRequest::wrong_request(boost::format("The resourse '%1%' was not found.") % request_.target(), std::move(request_));
 
             if (ec)
-                return Handler::IRequest::wrong_request(boost::format("An error occurred: '%1%'") % ec.message(), request_);
+                return Handler::IRequest::wrong_request(boost::format("An error occurred: '%1%'") % ec.message(), std::move(request_));
 
             auto const size = body.size();
 
@@ -169,19 +171,19 @@ const std::shared_ptr<Server> Server::setup_routing()
     return shared_from_this();
 }
 
-void Server::start_accept() {
+void HttpServer::start_accept() {
     spdlog::info("wait new client ...");
 
     acceptor_.async_accept(boost::asio::make_strand(ios),
         beast::bind_front_handler(
-            &Server::handle_accept,
+            &HttpServer::handle_accept,
             shared_from_this()));
 
 }
 
-void Server::handle_accept(beast::error_code ec, tcp::socket socket) {
+void HttpServer::handle_accept(beast::error_code ec, tcp::socket socket) {
     if (ec) {
-        spdlog::error("Server error: {}", ec.message());
+        spdlog::error("HttpServer error: {}", ec.message());
         return;
     }
 

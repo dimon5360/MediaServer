@@ -115,4 +115,5 @@
         "${workspaceFolder}/net/router/**",
         "-I${workspaceFolder}/config/**"
     ],
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
 }

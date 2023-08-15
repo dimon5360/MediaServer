@@ -8,23 +8,31 @@ namespace Net::Handler {
 
 class PostRequest : public IRequest {
 
-    friend class RequestWrapper;
-
     using IRequest::IRequest;
 
 public:
 
-    PostRequest(handler custom_handler) 
-        : IRequest() {
-
-        this->handle = custom_handler;
-
+    explicit PostRequest(const handler& custom_handler) 
+        : IRequest()
+        , handle(custom_handler)
+    {
         spdlog::info("PostRequest class constructor");
     }
+
+    PostRequest(const PostRequest&) = delete;
+    PostRequest(PostRequest&&) = delete;
+    const PostRequest& operator=(const PostRequest&) = delete;
+    PostRequest&& operator=(PostRequest&&) = delete;
     
-    ~PostRequest() {
+    ~PostRequest() override {
         spdlog::info("PostRequest class destructor");
     }
+
+    const handler& get_handler() const {
+        return handle;
+    }
+
+private:
 
     handler handle = {};
 };

@@ -13,7 +13,7 @@
 
 #include "core.h"
 #include "config.h"
-#include "server.h"
+#include "http_server.h"
 #include "types.h"
 
 namespace App {
@@ -34,7 +34,6 @@ std::shared_ptr<Core> Core::create() {
 void Core::run() const noexcept {
 
     using Config = App::Config;
-    using Server = Net::Server;
     using namespace boost::asio;
 
     decltype(auto) config(Config::instance());
@@ -62,10 +61,12 @@ void Core::run() const noexcept {
     }
 
     boost::asio::post(work.get_io_context(), [&]() {
-        Server::init(work.get_io_context(), endp)->setup_routing()->run();
+        Net::HttpServer::init(work.get_io_context(), endp)->setup_routing()->run();
     });
 
     signals.async_wait([&](const boost::system::error_code& error, int signal_number) {
+        std::ignore = error;
+        std::ignore = signal_number;
         work.get_io_context().stop();
     });
 
