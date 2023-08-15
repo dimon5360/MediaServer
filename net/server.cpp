@@ -1,10 +1,11 @@
 
-#include <spdlog/spdlog.h>
-#include <boost/bind.hpp>
-
 #include "server.h"
 #include "router.h"
 #include "config.h"
+
+#include <spdlog/spdlog.h>
+#include <boost/bind.hpp>
+#include <future>
 
 namespace Net {
 
@@ -85,6 +86,13 @@ const std::shared_ptr<Server> Server::setup_routing()
     router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"], 
         [&](http::request<http::string_body>&& request_, const std::string& doc_root_) -> Handler::http::message_generator
         {
+            auto future = std::async(std::launch::async, []() {
+                // simulate long time operation
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+            });
+
+            future.wait();
+
             std::string path = path_cat(doc_root_, request_.target());
             if (request_.target().back() == '/')
                 path.append("index.html");

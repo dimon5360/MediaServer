@@ -28,7 +28,7 @@ public:
         routing_.insert({ api, Handler::RequestWrapper::wrap(method, handle) });
     }
 
-	std::shared_ptr<Handler::RequestWrapper> operator[](const std::string& api) {
+	std::shared_ptr<const Handler::RequestWrapper> operator[](const std::string& api) {
 		if (!routing_.contains(api)) {
 			return nullptr;
 		}

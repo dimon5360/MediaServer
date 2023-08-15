@@ -39,11 +39,11 @@ public:
 		return req->unwrap();
 	}
 
-	Handler::http::message_generator execute(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root) {
+	Handler::http::message_generator execute(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root) const {
 
         try 
         {
-            decltype(auto) handle = this->unwrap();
+            IRequest::handler handle = this->unwrap();
             return handle(std::move(req), doc_root);
         }
         catch (std::exception& ex) 
@@ -77,7 +77,7 @@ private:
 		spdlog::info("RequestWrapper class constructor");
 	}
 
-	IRequest::handler unwrap() {
+	IRequest::handler unwrap() const {
 		
 		switch (m)
 		{
