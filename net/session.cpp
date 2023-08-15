@@ -56,7 +56,13 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
 
     try 
     {
-        start_write(Router::instance()->execute(std::move(request_), *doc_root_));
+        decltype(auto) request = Router::instance()[request_.target()];
+        if (nullptr == request) {
+            start_write(Handler::IRequest::wrong_request("Illegal request-target", request_));
+            return;
+        }
+
+        start_write(request->execute(std::move(request_), *doc_root_));
     } 
     catch (std::exception &ex) 
     {

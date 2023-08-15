@@ -20,6 +20,8 @@ class IRequest {
 
 public:
 
+    using handler = std::function<Handler::http::message_generator(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root)>;
+
     IRequest() noexcept {
         spdlog::info("IRequest class constructor");
     }

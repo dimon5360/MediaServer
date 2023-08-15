@@ -82,7 +82,7 @@ const std::shared_ptr<Server> Server::setup_routing()
     decltype(auto) config = App::Config::instance();
     decltype(auto) router = Router::instance();
     
-    router->setup_route((*config)["API_V1_INDEX"], std::make_shared<Handler::GetRequest>(
+    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"], 
         [&](http::request<http::string_body>&& request_, const std::string& doc_root_) -> Handler::http::message_generator
         {
             std::string path = path_cat(doc_root_, request_.target());
@@ -118,9 +118,9 @@ const std::shared_ptr<Server> Server::setup_routing()
             res.keep_alive(request_.keep_alive());
             return res;
         }
-    ));
+    );
 
-    router->setup_route((*config)["API_V1_MAIN"], std::make_shared<Handler::GetRequest>(
+    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_MAIN"], 
         [&](http::request<http::string_body>&& request_, const std::string& doc_root_) -> Handler::http::message_generator
         {
             std::string path = path_cat(doc_root_, request_.target());
@@ -156,7 +156,7 @@ const std::shared_ptr<Server> Server::setup_routing()
             res.keep_alive(request_.keep_alive());
             return res;
         }
-    ));
+    );
 
     return shared_from_this();
 }

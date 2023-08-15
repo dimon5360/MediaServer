@@ -8,18 +8,16 @@ namespace Net::Handler {
 
 class PostRequest : public IRequest {
 
-    friend class Router;
+    friend class RequestWrapper;
 
     using IRequest::IRequest;
 
-    using handler = std::function<Handler::http::message_generator(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root)>;
-
 public:
 
-    explicit PostRequest(handler custom_handler) 
+    PostRequest(handler custom_handler) 
         : IRequest() {
 
-        this->handler_ = custom_handler;
+        this->handle = custom_handler;
 
         spdlog::info("PostRequest class constructor");
     }
@@ -28,12 +26,7 @@ public:
         spdlog::info("PostRequest class destructor");
     }
 
-    http::message_generator execute(http::request<http::string_body>&& request_, const std::string& doc_root_) 
-    {
-        return handler_(std::move(request_), doc_root_);
-    }
-
-    handler handler_ = {};
+    handler handle = {};
 };
 
 }

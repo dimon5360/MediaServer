@@ -8,16 +8,16 @@ namespace Net::Handler {
 
 class GetRequest : public IRequest {
 
-    using IRequest::IRequest;
+    friend class RequestWrapper;
 
-    using handler = std::function<Handler::http::message_generator(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root)>;
+    using IRequest::IRequest;
 
 public:
 
     GetRequest(handler custom_handler) 
         : IRequest() {
 
-        this->handler_ = custom_handler;
+        this->handle = custom_handler;
 
         spdlog::info("GetRequest class constructor");
     }
@@ -26,14 +26,9 @@ public:
         spdlog::info("GetRequest class destructor");
     }
 
-    http::message_generator execute(http::request<http::string_body>&& request_, const std::string& doc_root_) 
-    {
-        return handler_(std::move(request_), doc_root_);
-    }
+protected:
 
-private:
-
-    handler handler_ = {};
+    handler handle = {};
 };
 
 }
