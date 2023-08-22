@@ -31,8 +31,7 @@ class Session : public std::enable_shared_from_this<Session> {
 
 public:
 
-    explicit Session(tcp::socket&& socket,
-        std::shared_ptr<std::string const> const& doc_root);
+    explicit Session(tcp::socket&& socket);
 
     Session() = delete;
     Session(const Session&) = delete;
@@ -55,12 +54,10 @@ private:
         beast::error_code ec,
         std::size_t bytes_transferred);
 
-    void fail(beast::error_code ec, std::string&& info);
+    const void fail(beast::error_code ec, std::string&& info) const;
     void close_session();
 
 private:
-
-    std::shared_ptr<std::string const> doc_root_;
 
     beast::tcp_stream stream_;
     beast::flat_buffer buffer_{ 8192 };

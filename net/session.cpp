@@ -11,10 +11,8 @@ namespace Net {
 
 using namespace boost::asio;
 
-Session::Session(tcp::socket&& socket_,
-    std::shared_ptr<std::string const> const& doc_root)
-    : stream_(std::move(socket_))
-    , doc_root_(doc_root) {
+Session::Session(tcp::socket&& socket_)
+    : stream_(std::move(socket_)) {
 
     spdlog::info("Session class constructor");
 }
@@ -52,20 +50,18 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
         return close_session();
 
     if (ec)
-        return fail(ec, __func__);
+        return fail(ec, std::source_location::current().function_name());
 
-    try 
-    {
+    try {
         decltype(auto) request = Router::instance()[request_.target()];
         if (nullptr == request) {
-            start_write(Handler::IRequest::wrong_request("Illegal request-target", request_));
+            start_write(Handler::IRequest::wrong_request("Illegal request-target", std::move(request_)));
             return;
         }
 
-        start_write(request->execute(std::move(request_), *doc_root_));
-    } 
-    catch (std::exception &ex) 
-    {
+        start_write(request->execute(std::move(request_)));
+    }
+    catch (const std::out_of_range& ex) {
         spdlog::info("Exteption caught: {}", ex.what());
     }
 
@@ -84,13 +80,12 @@ void Session::start_write(http::message_generator&& msg) {
 void Session::handle_write(
     bool keep_alive,
     beast::error_code ec,
-    std::size_t bytes_transferred) 
-{
+    std::size_t bytes_transferred) {
 
     boost::ignore_unused(bytes_transferred);
 
     if (ec)
-        return fail(ec, __func__);
+        return fail(ec, std::source_location::current().function_name());
 
     if (!keep_alive)
         return close_session();
@@ -98,8 +93,8 @@ void Session::handle_write(
     start_read();
 }
 
-void Session::fail(beast::error_code ec, std::string&& info) {
-    spdlog::error("Got sesssion error {} in function {}", ec.message(), info);
+const void Session::fail(beast::error_code ec, std::string&& info) const {
+    spdlog::error("Got sesssion error {} in function {}", ec.message(), std::move(info));
 }
 
 void Session::close_session() {

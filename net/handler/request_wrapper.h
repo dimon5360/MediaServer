@@ -20,7 +20,7 @@ class RequestWrapper {
 
 public:
 
-	static std::shared_ptr<RequestWrapper> wrap(boost::beast::http::verb method, IRequest::handler handle) {
+	static std::shared_ptr<RequestWrapper> wrap(boost::beast::http::verb method, const IRequest::handler& handle) {
 		static std::shared_ptr<RequestWrapper> wrapped_req(new RequestWrapper(method, handle));
 		return wrapped_req;
 	}
@@ -34,63 +34,63 @@ public:
 		spdlog::info("RequestWrapper class destructor");
 	}
 
-	static IRequest::handler unwrap(std::shared_ptr<RequestWrapper> req)
-	{
+	static IRequest::handler unwrap(std::shared_ptr<RequestWrapper> req) {
 		return req->unwrap();
 	}
 
-	Handler::http::message_generator execute(Handler::http::request<Handler::http::string_body>&& req, const std::string& doc_root) const {
+	Handler::http::message_generator execute(Handler::http::request<Handler::http::string_body>&& req) const {
 
-        try 
-        {
-            IRequest::handler handle = this->unwrap();
-            return handle(std::move(req), doc_root);
-        }
-        catch (const std::invalid_argument& ex) 
-        {
-            return IRequest::wrong_request(ex.what(), req);
-        }
+		try {
+			IRequest::handler handle = this->unwrap();
+			return handle(std::move(req));
+		}
+		catch (const std::invalid_argument& ex) {
+			return IRequest::wrong_request(ex.what(), std::move(req));
+		}
 	}
 
 private:
 
-	RequestWrapper(boost::beast::http::verb method, IRequest::handler handle) :
-		m(method)
-	{
-		switch (m)
+	explicit RequestWrapper(boost::beast::http::verb method, IRequest::handler handle) :
+		m(method) {
+		switch (m) {
+		case boost::beast::http::verb::get:
 		{
-			case boost::beast::http::verb::get: {
-				ptr = std::make_shared<GetRequest>(handle);
-				break;
-			}
-			case boost::beast::http::verb::post: {
-				ptr = std::make_shared<PostRequest>(handle);
-				break;
-			}
-			// TODO: add other requests handlers
-			default: {
-                spdlog::info("Undefined HTTP-method");
-				break;
-			}
+			ptr = std::make_shared<GetRequest>(handle);
+			break;
+		}
+		case boost::beast::http::verb::post:
+		{
+			ptr = std::make_shared<PostRequest>(handle);
+			break;
+		}
+		// TODO: add other requests handlers
+		default:
+		{
+			spdlog::info("Undefined HTTP-method");
+			break;
+		}
 		}
 
 		spdlog::info("RequestWrapper class constructor");
 	}
 
 	IRequest::handler unwrap() const {
-		
-		switch (m)
+
+		switch (m) {
+		case boost::beast::http::verb::get:
 		{
-			case boost::beast::http::verb::get: {
-				return static_cast<GetRequest*>(ptr.get())->get_handler();
-			}
-			case boost::beast::http::verb::post: {
-				return static_cast<PostRequest*>(ptr.get())->get_handler();
-			}
-			// TODO: add other requests handlers
-			default: {
-                throw std::invalid_argument("Undefined HTTP-method");
-			}
+			return static_cast<GetRequest*>(ptr.get())->get_handler();
+		}
+		case boost::beast::http::verb::post:
+		{
+			return static_cast<PostRequest*>(ptr.get())->get_handler();
+		}
+		// TODO: add other requests handlers
+		default:
+		{
+			throw std::invalid_argument("Undefined HTTP-method");
+		}
 		}
 	}
 };

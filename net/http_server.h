@@ -29,7 +29,7 @@ public:
     ~HttpServer();
 
     void run() noexcept;
-    const std::shared_ptr<HttpServer> setup_routing();
+    std::shared_ptr<HttpServer> setup_routing();
 
 private:
 

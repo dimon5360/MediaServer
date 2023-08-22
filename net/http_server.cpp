@@ -6,13 +6,24 @@
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
 #include <future>
+#include <string>
 
 namespace Net {
 
 using namespace boost::asio;
 
 namespace {
-    using method = boost::beast::http::verb;
+using method = boost::beast::http::verb;
+
+const std::string index_html{ "../static/html/index.html" };
+
+const auto wrongFile = [](std::string_view resource) -> decltype(auto) {
+    return boost::str(boost::format("The resourse '%1%' was not found.") % resource);
+};
+
+const auto errorOccured = [](std::string_view err_msg) -> decltype(auto) {
+    return boost::str(boost::format("An error occurred: '%1%'") % err_msg);
+};
 }
 
 std::shared_ptr<HttpServer> HttpServer::init(service& ios, const endpoint& endp) {
@@ -23,9 +34,8 @@ std::shared_ptr<HttpServer> HttpServer::init(service& ios, const endpoint& endp)
 HttpServer::HttpServer(service& ios, const endpoint& endp)
     : IServer()
     , ios(ios)
-    , acceptor_(boost::asio::make_strand(ios))
-{
-    doc_root_= std::make_shared<std::string const>("/");
+    , acceptor_(boost::asio::make_strand(ios)) {
+    doc_root_ = std::make_shared<std::string const>("/");
 
     spdlog::info("HttpServer class contructor");
     beast::error_code ec;
@@ -73,99 +83,49 @@ std::string path_cat(beast::string_view base, beast::string_view path) {
     if (base.empty())
         return std::string(path);
     std::string result(base);
-    char constexpr path_separator = '/';
-    if (result.back() == path_separator)
+
+    if (result.back() == '/')
         result.resize(result.size() - 1);
     result.append(path.data(), path.size());
     return result;
 }
 
-const std::shared_ptr<HttpServer> HttpServer::setup_routing() 
-{
+std::shared_ptr<HttpServer> HttpServer::setup_routing() {
     decltype(auto) config = App::Config::instance();
     decltype(auto) router = Router::instance();
-    
-    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"], 
-        [](http::request<http::string_body>&& request_, const std::string& doc_root) -> Handler::http::message_generator
-        {
-            auto future = std::async(std::launch::async, []() {
-                // simulate long time operation
-                std::this_thread::sleep_for(std::chrono::seconds(5));
-            });
 
-            future.wait();
+    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"],
+        [&](http::request<http::string_body>&& request_) -> Handler::IRequest::msg_gen {
 
-            std::string path = path_cat(doc_root, request_.target());
-            if (request_.target().back() == '/')
-                path.append("index.html");
+        beast::error_code ec;
+        http::file_body::value_type body;
+        body.open(index_html.c_str(), beast::file_mode::scan, ec);
 
-            beast::error_code ec;
-            http::file_body::value_type body;
-            body.open(path.c_str(), beast::file_mode::scan, ec);
+        if (beast::errc::no_such_file_or_directory == ec)
+            return Handler::IRequest::wrong_request(wrongFile(request_.target()), std::move(request_));
 
-            if (beast::errc::no_such_file_or_directory == ec)
-                return Handler::IRequest::wrong_request(boost::format("The resourse '%1%' was not found.") % request_.target(), request_);
+        if (beast::errc::success != ec)
+            return Handler::IRequest::wrong_request(errorOccured(ec.message()), std::move(request_));
 
-            if (ec)
-                return Handler::IRequest::wrong_request(boost::format("An error occurred: '%1%'") % ec.message(), request_);
+        auto const size = body.size();
 
-            auto const size = body.size();
-
-            if (request_.method() == http::verb::head) {
-                http::response<http::empty_body> res{ http::status::ok, request_.version() };
-                res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-                res.set(http::field::content_type, "text/html");
-                res.content_length(size);
-                res.keep_alive(request_.keep_alive());
-                return res;
-            }
-
-            auto header{ std::make_tuple(http::status::ok, request_.version()) };
-            http::response<http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
+        if (request_.method() == http::verb::head) {
+            http::response<http::empty_body> res{ http::status::ok, request_.version() };
             res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
             res.set(http::field::content_type, "text/html");
             res.content_length(size);
             res.keep_alive(request_.keep_alive());
             return res;
         }
-    );
 
-    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_MAIN"], 
-        [](http::request<http::string_body>&& request_, const std::string& doc_root) -> Handler::http::message_generator
-        {
-            std::string path = path_cat(doc_root, request_.target());
-            if (request_.target().back() == '/')
-                path.append("index.html");
-
-            beast::error_code ec;
-            http::file_body::value_type body;
-            body.open(path.c_str(), beast::file_mode::scan, ec);
-
-            if (beast::errc::no_such_file_or_directory == ec)
-                return Handler::IRequest::wrong_request(boost::format("The resourse '%1%' was not found.") % request_.target(), std::move(request_));
-
-            if (ec)
-                return Handler::IRequest::wrong_request(boost::format("An error occurred: '%1%'") % ec.message(), std::move(request_));
-
-            auto const size = body.size();
-
-            if (request_.method() == http::verb::head) {
-                http::response<http::empty_body> res{ http::status::ok, request_.version() };
-                res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-                res.set(http::field::content_type, "text/html");
-                res.content_length(size);
-                res.keep_alive(request_.keep_alive());
-                return res;
-            }
-
-            auto header{ std::make_tuple(http::status::ok, request_.version()) };
-            http::response<http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
-            res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(http::field::content_type, "text/html");
-            res.content_length(size);
-            res.keep_alive(request_.keep_alive());
-            return res;
-        }
+        auto header{ std::make_tuple(http::status::ok, request_.version()) };
+        http::response<http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
+        res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
+        res.set(http::field::content_type, "text/html");
+        res.content_length(size);
+        res.keep_alive(request_.keep_alive());
+        return res;
+    }
     );
 
     return shared_from_this();
@@ -188,7 +148,7 @@ void HttpServer::handle_accept(beast::error_code ec, tcp::socket socket) {
     }
 
     spdlog::info("Connection accepted");
-    std::make_shared<Session>(std::move(socket), doc_root_)->run();
+    std::make_shared<Session>(std::move(socket))->run();
     start_accept();
 }
 }
