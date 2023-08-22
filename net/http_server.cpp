@@ -1,30 +1,11 @@
 
 #include "http_server.h"
 #include "router.h"
-#include "config.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
-#include <future>
-#include <string>
 
 namespace Net {
-
-using namespace boost::asio;
-
-namespace {
-using method = boost::beast::http::verb;
-
-const std::string index_html{ "../static/html/index.html" };
-
-const auto wrongFile = [](std::string_view resource) -> decltype(auto) {
-    return boost::str(boost::format("The resourse '%1%' was not found.") % resource);
-};
-
-const auto errorOccured = [](std::string_view err_msg) -> decltype(auto) {
-    return boost::str(boost::format("An error occurred: '%1%'") % err_msg);
-};
-}
 
 std::shared_ptr<HttpServer> HttpServer::init(service& ios, const endpoint& endp) {
     static std::shared_ptr<HttpServer> server(new HttpServer(ios, endp));
@@ -91,43 +72,7 @@ std::string path_cat(beast::string_view base, beast::string_view path) {
 }
 
 std::shared_ptr<HttpServer> HttpServer::setup_routing() {
-    decltype(auto) config = App::Config::instance();
-    decltype(auto) router = Router::instance();
-
-    router.setup_route<boost::beast::http::verb::get>((*config)["API_V1_INDEX"],
-        [&](http::request<http::string_body>&& request_) -> Handler::IRequest::msg_gen {
-
-        beast::error_code ec;
-        http::file_body::value_type body;
-        body.open(index_html.c_str(), beast::file_mode::scan, ec);
-
-        if (beast::errc::no_such_file_or_directory == ec)
-            return Handler::IRequest::wrong_request(wrongFile(request_.target()), std::move(request_));
-
-        if (beast::errc::success != ec)
-            return Handler::IRequest::wrong_request(errorOccured(ec.message()), std::move(request_));
-
-        auto const size = body.size();
-
-        if (request_.method() == http::verb::head) {
-            http::response<http::empty_body> res{ http::status::ok, request_.version() };
-            res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(http::field::content_type, "text/html");
-            res.content_length(size);
-            res.keep_alive(request_.keep_alive());
-            return res;
-        }
-
-        auto header{ std::make_tuple(http::status::ok, request_.version()) };
-        http::response<http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
-        res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-        res.set(http::field::content_type, "text/html");
-        res.content_length(size);
-        res.keep_alive(request_.keep_alive());
-        return res;
-    }
-    );
-
+    Router::instance().init_routing();
     return shared_from_this();
 }
 

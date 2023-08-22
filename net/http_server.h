@@ -5,10 +5,6 @@
 #include "iserver.h"
 #include "session.h"
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-
 namespace Net {
 
 class HttpServer : public IServer, public std::enable_shared_from_this<HttpServer> {

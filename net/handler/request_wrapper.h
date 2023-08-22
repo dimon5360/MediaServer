@@ -21,7 +21,7 @@ class RequestWrapper {
 public:
 
 	static std::shared_ptr<RequestWrapper> wrap(boost::beast::http::verb method, const IRequest::handler& handle) {
-		static std::shared_ptr<RequestWrapper> wrapped_req(new RequestWrapper(method, handle));
+		std::shared_ptr<RequestWrapper> wrapped_req(new RequestWrapper(method, handle));
 		return wrapped_req;
 	}
 
@@ -41,7 +41,7 @@ public:
 	Handler::http::message_generator execute(Handler::http::request<Handler::http::string_body>&& req) const {
 
 		try {
-			IRequest::handler handle = this->unwrap();
+			IRequest::handler handle = unwrap();
 			return handle(std::move(req));
 		}
 		catch (const std::invalid_argument& ex) {

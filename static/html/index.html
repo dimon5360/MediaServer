@@ -1,7 +1,17 @@
-<!DOCTYPE html>
-<head>
-    <h1>Main page</h1>
-</head>
-<body>
-    <p1>Hello, User</p1>
-</body>
+<!DOCTYPE HTML>
+<xml:html>
+ <head>
+  <meta charset="utf-8">
+  <title>Событие onclick</title>
+    <script>
+        function get_list() {
+            window.location.href=`/api/v1/get/list/`;
+        }
+    </script>
+ </head>
+ <body>
+  <form action="">
+   <p><input type="button" value="Получить список файлов" onclick="get_list()"></p>
+  </form>
+ </body>
+</xmlhtml>

@@ -3,6 +3,7 @@
 #define NET_ROUTER_H
 
 #include "handlers.h"
+
 namespace Net {
 
 class Router {
@@ -23,16 +24,18 @@ public:
         spdlog::info("Router class destructor");
     }
 
-    template<boost::beast::http::verb method>
-    void setup_route(const std::string& api, const Handler::IRequest::handler& handle) {
-        routing_.try_emplace(api, Handler::RequestWrapper::wrap(method, handle));
-    }
+    void init_routing();
 
     std::shared_ptr<const Handler::RequestWrapper> operator[](const std::string& api) {
         return routing_.at(api);
     }
 
 private:
+
+    template<boost::beast::http::verb method>
+    void add_routing(const std::string& api, const Handler::IRequest::handler& handle) {
+        routing_.try_emplace(api, Handler::RequestWrapper::wrap(method, handle));
+    }
 
     explicit Router() {
         spdlog::info("Router class constructor");
