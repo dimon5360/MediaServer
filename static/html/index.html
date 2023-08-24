@@ -1,17 +1,17 @@
 <!DOCTYPE HTML>
-<xml:html>
- <head>
-  <meta charset="utf-8">
-  <title>Событие onclick</title>
-    <script>
-        function get_list() {
-            window.location.href=`/api/v1/get/list/`;
-        }
-    </script>
- </head>
- <body>
-  <form action="">
-   <p><input type="button" value="Получить список файлов" onclick="get_list()"></p>
-  </form>
- </body>
-</xmlhtml>
+<meta charset="utf-8">
+<head>
+    <title>Log In</title>
+</head>
+<body>
+    <p>
+        <label for="Username">Login</label>
+        <input type="text" id="Username" value="admin" />
+
+        <label for="Password">Password</label>
+        <input type="password" id="Password" value="password" />
+
+        <button type="button" onclick="login()">Log In</button>
+    </p>
+    <script src="/api/v1/login.js"></script>
+</body>

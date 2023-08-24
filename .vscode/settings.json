@@ -105,7 +105,8 @@
         "__node_handle": "cpp",
         "__tree": "cpp",
         "queue": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "stack": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++-15",
     "C_Cpp.default.includePath": [

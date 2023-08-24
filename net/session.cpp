@@ -53,7 +53,10 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
         return fail(ec, std::source_location::current().function_name());
 
     try {
-        decltype(auto) request = Router::instance()[request_.target()];
+
+        spdlog::info("Request method {} and target {}", to_string(request_.method()), request_.target());
+
+        decltype(auto) request = Router::instance().get_wrapper(request_.method(), request_.target());
         if (nullptr == request) {
             start_write(Handler::IRequest::wrong_request("Illegal request-target", std::move(request_)));
             return;
