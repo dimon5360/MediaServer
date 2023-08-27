@@ -11,8 +11,8 @@ function login() {
 
     xhr.onreadystatechange = function () {
         if (xhr.status === 200) {
-            console.log("got response");
-            window.location.href=`/api/v1/main/`;
+            console.log("got response:");
+            window.location.href="/api/v1/main.html";
             return this.responseText;
         }
     };
