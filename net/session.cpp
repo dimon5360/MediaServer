@@ -58,7 +58,7 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
 
         decltype(auto) request = Router::instance().get_wrapper(request_.method(), request_.target());
         if (nullptr == request) {
-            start_write(Handler::IRequest::wrong_request("Illegal request-target", std::move(request_)));
+            start_write(Handler::IRequest::wrong_request(http::status::bad_request, "Illegal request-target", std::move(request_)));
             return;
         }
 

@@ -15,7 +15,10 @@ public:
 
     IServer() {
         spdlog::info("Iserver class constructor");
-    } 
+    }
+
+    IServer(const IServer&) = delete;
+    IServer(IServer&&) = delete;
 
     virtual ~IServer() {
         spdlog::info("Iserver class destructor");

@@ -45,7 +45,7 @@ public:
 			return handle(std::move(req));
 		}
 		catch (const std::invalid_argument& ex) {
-			return IRequest::wrong_request(ex.what(), std::move(req));
+			return IRequest::wrong_request(http::status::bad_request, ex.what(), std::move(req));
 		}
 	}
 

@@ -37,8 +37,8 @@ void Core::run() const noexcept {
     using namespace boost::asio;
 
     decltype(auto) config(Config::instance());
-    const std::string host{ (*config)["HOST"] };
-    const std::string port{ (*config)["PORT"] };
+    const std::string host{ config["HOST"] };
+    const std::string port{ config["PORT"] };
 
     spdlog::info("Start server listening {}:{}", host, port);
 
@@ -55,16 +55,16 @@ void Core::run() const noexcept {
     signal_set signals(work.get_io_context(), SIGINT, SIGTERM);
 
     for (unsigned int i = 0; i < boost::thread::hardware_concurrency(); ++i) {
-        threads.create_thread([&]() {
+        threads.create_thread([&work]() {
             work.get_io_context().run();
         });
     }
 
-    boost::asio::post(work.get_io_context(), [&]() {
+    boost::asio::post(work.get_io_context(), [&work, &endp]() {
         Net::HttpServer::init(work.get_io_context(), endp)->setup_routing()->run();
     });
 
-    signals.async_wait([&](const boost::system::error_code& error, int signal_number) {
+    signals.async_wait([&work](const boost::system::error_code& error, int signal_number) {
         std::ignore = error;
         std::ignore = signal_number;
         work.get_io_context().stop();

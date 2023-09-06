@@ -21,6 +21,8 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
+#include <pqxx/pqxx>
+
 namespace Net {
 
 using namespace boost::asio;
@@ -76,10 +78,10 @@ static Handler::IRequest::msg_gen prepare_response_with_file(http::request<http:
     body.open(filename.c_str(), beast::file_mode::scan, ec);
 
     if (beast::errc::no_such_file_or_directory == ec)
-        return Handler::IRequest::wrong_request(wrongFile(request_.target()), std::move(request_));
+        return Handler::IRequest::wrong_request(http::status::bad_request, wrongFile(request_.target()), std::move(request_));
 
     if (beast::errc::success != ec)
-        return Handler::IRequest::wrong_request(errorOccured(ec.message()), std::move(request_));
+        return Handler::IRequest::wrong_request(http::status::bad_request, errorOccured(ec.message()), std::move(request_));
 
     auto const size = body.size();
 
@@ -109,8 +111,35 @@ static Handler::IRequest::msg_gen h_get_login(http::request<http::string_body>&&
 
 static bool validateCreadentials(std::string&& login, std::string&& password) {
 
-    // TODO: check credentials with database
-    return (0 == std::move(login).compare("admin")) && (0 == std::move(password).compare("password"));
+    try {
+        pqxx::connection c{ App::Config::instance()["CONNECTION_STRING"] };
+        pqxx::work txn{ c };
+
+        const std::string query{ "SELECT id FROM users where username=\'" + std::move(login) +
+            "\' and password=\'" + std::move(password) + "\';" };
+
+        pqxx::result r{ txn.exec(query) };
+
+        if (r.empty()) {
+            return false;
+        }
+
+        for (auto row : r) {
+            std::cout << row[0].as<int>() << std::endl;
+        }
+        txn.commit();
+
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        return true;
+    }
+    catch (pqxx::sql_error const& e) {
+        std::cerr << "SQL error: " << e.what() << std::endl;
+        return false;
+    }
+    catch (std::exception const& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return false;
+    }
 }
 
 static uint32_t random_number() {
@@ -136,12 +165,11 @@ static Handler::IRequest::msg_gen h_post_login(http::request<http::string_body>&
 
         // async login data validation
         decltype(auto) fut = std::async([&login, &password]() {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
             return validateCreadentials(std::move(login), std::move(password));
         });
 
         if (!fut.get()) {
-            return Handler::IRequest::wrong_request(errorOccured("Invalid login or password"), std::move(request_));
+            return Handler::IRequest::wrong_request(http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
         }
 
         pt::ptree resp_json;

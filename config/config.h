@@ -18,7 +18,7 @@ class Config : public std::enable_shared_from_this<Config> {
 
 public:
 
-    static std::shared_ptr<const Config> instance();
+    static const Config& instance();
 
     Config(const Config&) = delete;
     Config(Config&&) = delete;
@@ -28,7 +28,7 @@ public:
     ~Config();
 
     template<typename ... Ts>
-    std::shared_ptr<const Config> parseEnv(Ts ... args) const {
+    const Config& parseEnv(Ts ... args) const {
 
         std::vector<std::common_type_t<Ts...>> vec_{ args... };
         for (const auto& file : vec_) {
@@ -36,27 +36,27 @@ public:
             std::fstream f(file, std::ios_base::in);
             if (!f.is_open()) {
                 spdlog::error("Faild open config file '{}", file);
-                return shared_from_this();
+                return *this;
             }
 
-            typedef std::vector<std::string> Tokens;
+            using Tokens = std::vector<std::string>;
             Tokens tokens;
             for (std::string line; getline(f, line); ) {
                 if (line.empty() || line.starts_with("#"))
-                    continue; // with '#' start comments
+                    continue; // with '#' comment starts
 
                 boost::split(tokens, line, boost::is_any_of("="));
-                m_.insert({ tokens[0], tokens[1] });
+                m_.try_emplace(tokens[0], tokens[1]);
             }
 
             f.close();
         }
-        return shared_from_this();
+        return *this;
     }
 
     template<typename T = std::string>
     const std::string& operator[](T&& key) const {
-        return m_.at(key);
+        return m_.at(std::forward<T>(key));
     }
 private:
 
@@ -64,6 +64,6 @@ private:
 
 private:
 
-    mutable std::map<std::string, std::string> m_;
+    mutable std::map<std::string, std::string, std::less<>> m_;
 };
 }
