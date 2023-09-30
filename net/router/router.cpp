@@ -30,8 +30,8 @@ using method = boost::beast::http::verb;
 
 namespace {
 
-const std::string favicon_16x16{ "../static/favicon-16x16.png" };
-const std::string favicon_32x32{ "../static/favicon-32x32.png" };
+const std::string favicon_16x16{ "../static/icons/favicon-16x16.png" };
+const std::string favicon_32x32{ "../static/icons/favicon-32x32.png" };
 
 const std::string index_html{ "../static/html/index.html" };
 const std::string main_html{ "../static/html/main.html" };
@@ -98,14 +98,12 @@ static Handler::IRequest::msg_gen prepare_response_with_file(http::request<http:
 static Handler::IRequest::msg_gen h_get_index(http::request<http::string_body>&& request_) {
 
     spdlog::info("called {}", std::source_location::current().function_name());
-
     return prepare_response_with_file(std::move(request_), index_html, "text/html");
 }
 
 static Handler::IRequest::msg_gen h_get_login(http::request<http::string_body>&& request_) {
 
     spdlog::info("called {}", std::source_location::current().function_name());
-
     return prepare_response_with_file(std::move(request_), login_js, "text/javascript");
 }
 

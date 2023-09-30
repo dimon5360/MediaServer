@@ -54,7 +54,7 @@ void Core::run() const noexcept {
     io_context::work work(ios);
     signal_set signals(work.get_io_context(), SIGINT, SIGTERM);
 
-    for (unsigned int i = 0; i < boost::thread::hardware_concurrency(); ++i) {
+    for (int i = 0; i < N; ++i) {
         threads.create_thread([&work]() {
             work.get_io_context().run();
         });

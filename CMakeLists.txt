@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(Boost_USE_STATIC_LIBS ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-set(libpqxx_DIR )
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -pthread")
 
 find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
@@ -20,6 +18,15 @@ find_package(spdlog REQUIRED)
 if(spdlog_NOT_FOUND)
     message(FATAL "spdlog not found!")
 endif()
+
+include(FetchContent)
+FetchContent_Declare(
+  gRPC
+  GIT_REPOSITORY https://github.com/grpc/grpc
+  GIT_TAG        v1.29.0
+)
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_MakeAvailable(gRPC)
 
 set(PQXX /usr/include/pqxx)
 
@@ -81,4 +88,4 @@ message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
-target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog pqxx)
+target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog pqxx grpc++)
