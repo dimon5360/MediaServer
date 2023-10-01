@@ -35,9 +35,12 @@ const std::string favicon_16x16{ "../static/icons/favicon-16x16.png" };
 const std::string favicon_32x32{ "../static/icons/favicon-32x32.png" };
 
 const std::string index_html{ "../static/html/index.html" };
-const std::string main_html{ "../static/html/main.html" };
 
-const std::string login_js{ "../static/js/login.js" };
+const std::string auth_html{ "../static/html/auth.html" };
+const std::string register_html{ "../static/html/register.html" };
+
+const std::string auth_js{ "../static/js/auth.js" };
+const std::string register_js{ "../static/js/register.js" };
 
 const auto wrongFile = [](std::string_view resource) -> decltype(auto) {
     return boost::str(boost::format("The resourse '%1%' was not found.") % resource);
@@ -70,19 +73,6 @@ Handler::IRequest::msg_gen prepare_response_with_file(Handler::http::request<Han
     res.content_length(size);
     res.keep_alive(request_.keep_alive());
     return res;
-}
-
-
-Handler::IRequest::msg_gen Api::h_get_index(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
-    return prepare_response_with_file(std::move(request_), index_html, "text/html");
-}
-
-Handler::IRequest::msg_gen Api::h_get_login(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
-    return prepare_response_with_file(std::move(request_), login_js, "text/javascript");
 }
 
 bool validateCreadentials(std::string&& login, std::string&& password) {
@@ -126,7 +116,25 @@ static uint32_t random_number() {
     return dist(gen);
 }
 
-Handler::IRequest::msg_gen Api::h_post_login(Handler::http::request<Handler::http::string_body>&& request_) {
+Handler::IRequest::msg_gen Api::h_get_index_html(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    spdlog::info("called {}", std::source_location::current().function_name());
+    return prepare_response_with_file(std::move(request_), index_html, "text/html");
+}
+
+Handler::IRequest::msg_gen Api::h_get_auth_html(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    spdlog::info("called {}", std::source_location::current().function_name());
+    return prepare_response_with_file(std::move(request_), auth_html, "text/html");
+}
+
+Handler::IRequest::msg_gen Api::h_get_auth_js(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    spdlog::info("called {}", std::source_location::current().function_name());
+    return prepare_response_with_file(std::move(request_), auth_js, "text/javascript");
+}
+
+Handler::IRequest::msg_gen Api::h_post_auth_js(Handler::http::request<Handler::http::string_body>&& request_) {
 
     namespace pt = boost::property_tree;
 
@@ -172,11 +180,62 @@ Handler::IRequest::msg_gen Api::h_post_login(Handler::http::request<Handler::htt
     return res;
 }
 
-Handler::IRequest::msg_gen Api::h_get_main(Handler::http::request<Handler::http::string_body>&& request_) {
+Handler::IRequest::msg_gen Api::h_get_register_html(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    spdlog::info("called {}", std::source_location::current().function_name());
+    return prepare_response_with_file(std::move(request_), register_html, "text/html");
+}
+
+Handler::IRequest::msg_gen Api::h_get_register_js(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    spdlog::info("called {}", std::source_location::current().function_name());
+    return prepare_response_with_file(std::move(request_), register_js, "text/javascript");
+}
+
+Handler::IRequest::msg_gen Api::h_post_register_js(Handler::http::request<Handler::http::string_body>&& request_) {
+
+    namespace pt = boost::property_tree;
 
     spdlog::info("called {}", std::source_location::current().function_name());
 
-    return prepare_response_with_file(std::move(request_), main_html, "text/html");
+    beast::error_code ec;
+    boost::json::value req_json = boost::json::parse(request_.body(), ec);
+    std::string resp_body{};
+
+    try {
+        std::string login{ req_json.at("username").as_string() };
+        std::string password{ req_json.at("password").as_string() };
+
+        // async login data validation
+        decltype(auto) fut = std::async([&login, &password]() {
+            return validateCreadentials(std::move(login), std::move(password));
+        });
+
+        if (!fut.get()) {
+            return Handler::IRequest::wrong_request(Handler::http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
+        }
+
+        pt::ptree resp_json;
+        resp_json.put("uuid", random_number());
+
+        std::ostringstream oss;
+        boost::property_tree::json_parser::write_json(oss, resp_json);
+        resp_body = oss.str();
+
+        spdlog::info("json response: {}", resp_body);
+    }
+    catch (const std::out_of_range& ex) {
+        spdlog::error("The exception caught: {}", ex.what());
+    }
+
+    auto const size = resp_body.length();
+    http::response<http::string_body> res{ http::status::ok, request_.version() };
+    res.set(http::field::content_type, "application/json");
+    res.keep_alive(request_.keep_alive());
+    res.content_length(size);
+    res.body() = resp_body;
+    res.prepare_payload();
+    return res;
 }
 
 Handler::IRequest::msg_gen Api::h_get_16x16_icon(Handler::http::request<Handler::http::string_body>&& request_) {

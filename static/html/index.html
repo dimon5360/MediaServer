@@ -1,19 +1,24 @@
 <!DOCTYPE HTML>
-<meta charset="utf-8">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<head>
-    <title>Log In</title>
-</head>
-<body>
-    <p>
-        <label for="Username">Login</label>
-        <input type="text" id="Username" value="admin" />
-
-        <label for="Password">Password</label>
-        <input type="password" id="Password" value="password" />
-
-        <button type="button" onclick="login()">Log In</button>
-    </p>
-    <script src="/api/v1/login.js"></script>
-</body>
+<xml:html>
+    <head>
+        <meta charset="utf-8">
+        <title>Main page</title>
+        <script>
+            function login() {
+                window.location.href="/api/v1/auth.html";
+            }
+            
+            function signin() {
+                window.location.href="/api/v1/register.html";
+            }
+        </script>
+    </head>
+    <body>
+        <p>
+            <button type="button" onclick="login()">Log In</button>
+            <button type="button" onclick="signin()">Sign In</button>
+        </p>
+    </body>
+</xml:html>

@@ -1,5 +1,5 @@
 
-function login() {
+function auth() {
     const xhr = new XMLHttpRequest();
 
     console.log("login procedure")
@@ -12,12 +12,12 @@ function login() {
     xhr.onreadystatechange = function () {
         if (xhr.status === 200) {
             console.log("got response:");
-            window.location.href="/api/v1/main.html";
+            window.location.href="/api/v1/index.html";
             return this.responseText;
         }
     };
 
-    xhr.open("POST", "/api/v1/login.js", true);
+    xhr.open("POST", "/api/v1/auth.js", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(JSON.stringify(json));
 }
