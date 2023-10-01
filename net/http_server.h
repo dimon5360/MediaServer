@@ -3,7 +3,7 @@
 #define NET_SERVER_H
 
 #include "iserver.h"
-#include "session.h"
+#include "session/session.h"
 
 namespace Net {
 

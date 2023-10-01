@@ -40,8 +40,6 @@ set(INCLUDES
     ${workspaceFolder}
     ${workspaceFolder}core/
     ${workspaceFolder}net/
-    ${workspaceFolder}net/handler/
-    ${workspaceFolder}net/router/
     ${workspaceFolder}config/
 )
 
@@ -49,8 +47,8 @@ FILE(GLOB SOURCES
     ${workspaceFolder}*.cpp
     ${workspaceFolder}core/*.cpp
     ${workspaceFolder}net/*.cpp
-    ${workspaceFolder}net/handler/*.cpp
-    ${workspaceFolder}net/router/*.cpp
+    ${workspaceFolder}net/*/*.cpp
+    ${workspaceFolder}net/*/*/*.cpp
     ${workspaceFolder}config/*.cpp
 )
 

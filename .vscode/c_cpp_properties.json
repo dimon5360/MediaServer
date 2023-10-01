@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/core/**",
                 "${workspaceFolder}/net/**",
-                "${workspaceFolder}/net/handler/**",
+                "${workspaceFolder}/net/api/**",
+                "${workspaceFolder}/net/api/handlers/**",
                 "${workspaceFolder}/net/router/**",
                 "${workspaceFolder}/config/**"
             ],
@@ -25,7 +26,8 @@
                     "${workspaceFolder}/config/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
-            }
+            },
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

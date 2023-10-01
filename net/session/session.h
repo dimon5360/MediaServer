@@ -2,7 +2,7 @@
 #ifndef NET_SESSION_H
 #define NET_SESSION_H
 
-#include "handlers.h"
+#include "api/handlers/handlers.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
