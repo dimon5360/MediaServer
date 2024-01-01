@@ -110,10 +110,11 @@ bool validateCreadentials(std::string&& login, std::string&& password) {
 }
 
 static uint32_t random_number() {
+    std::random_device dev;
 
-    boost::random::mt19937 gen;
-    boost::random::uniform_int_distribution<uint32_t> dist(1, INT32_MAX);
-    return dist(gen);
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<uint32_t> dist(1, INT32_MAX);
+    return dist(rng);
 }
 
 msg_gen h_get_index_html(http::request<http::string_body>&& request_) {
