@@ -110,7 +110,9 @@
         "connection": "cpp",
         "hash_map": "cpp",
         "hash_set": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "__nullptr": "cpp",
+        "__string": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++-15",
     "C_Cpp.default.includePath": [

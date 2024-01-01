@@ -9,19 +9,19 @@
 
 namespace Net {
 
-class IServer {
+class IConnection {
 
 public:
 
-    IServer() {
-        spdlog::info("Iserver class constructor");
+    IConnection() {
+        spdlog::info("IConnection class constructor");
     }
 
-    IServer(const IServer&) = delete;
-    IServer(IServer&&) = delete;
+    IConnection(const IConnection&) = delete;
+    IConnection(IConnection&&) = delete;
 
-    virtual ~IServer() {
-        spdlog::info("Iserver class destructor");
+    virtual ~IConnection() {
+        spdlog::info("IConnection class destructor");
     }
 };
 }

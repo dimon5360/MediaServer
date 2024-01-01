@@ -9,7 +9,7 @@ namespace App {
 class Core {
 public:
 
-    static std::shared_ptr<Core> create();
+    static const Core& create();
 
     Core(const Core&) = delete;
     Core(Core&&) = delete;

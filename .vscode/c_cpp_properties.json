@@ -8,7 +8,10 @@
                 "${workspaceFolder}/net/**",
                 "${workspaceFolder}/net/api/**",
                 "${workspaceFolder}/net/api/handlers/**",
+                "${workspaceFolder}/net/http/**",
                 "${workspaceFolder}/net/router/**",
+                "${workspaceFolder}/net/session/**",
+                "${workspaceFolder}/net/websocket/**",
                 "${workspaceFolder}/config/**"
             ],
             "defines": [],
@@ -21,8 +24,48 @@
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/core/**",
                     "${workspaceFolder}/net/**",
-                    "${workspaceFolder}/net/handler/**",
+                    "${workspaceFolder}/net/api/**",
+                    "${workspaceFolder}/net/api/handlers/**",
+                    "${workspaceFolder}/net/http/**",
                     "${workspaceFolder}/net/router/**",
+                    "${workspaceFolder}/net/session/**",
+                    "${workspaceFolder}/net/websocket/**",
+                    "${workspaceFolder}/config/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "configurationProvider": "ms-vscode.cmake-tools"
+        },
+        {
+            "name": "Macos",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/core/**",
+                "${workspaceFolder}/net/**",
+                "${workspaceFolder}/net/api/**",
+                "${workspaceFolder}/net/api/handlers/**",
+                "${workspaceFolder}/net/http/**",
+                "${workspaceFolder}/net/router/**",
+                "${workspaceFolder}/net/session/**",
+                "${workspaceFolder}/net/websocket/**",
+                "${workspaceFolder}/config/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/core/**",
+                    "${workspaceFolder}/net/**",
+                    "${workspaceFolder}/net/api/**",
+                    "${workspaceFolder}/net/api/handlers/**",
+                    "${workspaceFolder}/net/http/**",
+                    "${workspaceFolder}/net/router/**",
+                    "${workspaceFolder}/net/session/**",
+                    "${workspaceFolder}/net/websocket/**",
                     "${workspaceFolder}/config/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true

@@ -1,5 +1,5 @@
 
-#include "restapi.h"
+#include "handler.h"
 #include "config.h"
 
 #include <string>
@@ -22,7 +22,7 @@
 
 #include <pqxx/pqxx>
 
-namespace Net {
+namespace Net::Api::Rest {
 
 using method = boost::beast::http::verb;
 
@@ -51,7 +51,7 @@ const auto errorOccured = [](std::string_view err_msg) -> decltype(auto) {
 };
 }
 
-Handler::IRequest::msg_gen prepare_response_with_file(Handler::http::request<Handler::http::string_body>&& request_, const std::string& filename, const std::string& content_type) {
+msg_gen prepare_response_with_file(http::request<http::string_body>&& request_, const std::string& filename, const std::string& content_type) {
 
     beast::error_code ec;
     http::file_body::value_type body;
@@ -59,16 +59,16 @@ Handler::IRequest::msg_gen prepare_response_with_file(Handler::http::request<Han
     body.open(filename.c_str(), beast::file_mode::scan, ec);
 
     if (beast::errc::no_such_file_or_directory == ec)
-        return Handler::IRequest::wrong_request(http::status::bad_request, wrongFile(request_.target()), std::move(request_));
+        return wrong_request(http::status::bad_request, wrongFile(request_.target()), std::move(request_));
 
     if (beast::errc::success != ec)
-        return Handler::IRequest::wrong_request(http::status::bad_request, errorOccured(ec.message()), std::move(request_));
+        return wrong_request(http::status::bad_request, errorOccured(ec.message()), std::move(request_));
 
     auto const size = body.size();
 
-    auto header{ std::make_tuple(Handler::http::status::ok, request_.version()) };
-    Handler::http::response<Handler::http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
-    res.set(Handler::http::field::server, BOOST_BEAST_VERSION_STRING);
+    auto header{ std::make_tuple(http::status::ok, request_.version()) };
+    http::response<http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)), header };
+    res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
     res.set(http::field::content_type, content_type);
     res.content_length(size);
     res.keep_alive(request_.keep_alive());
@@ -116,29 +116,21 @@ static uint32_t random_number() {
     return dist(gen);
 }
 
-Handler::IRequest::msg_gen Api::h_get_index_html(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
+msg_gen h_get_index_html(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), index_html, "text/html");
 }
 
-Handler::IRequest::msg_gen Api::h_get_auth_html(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
+msg_gen h_get_auth_html(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), auth_html, "text/html");
 }
 
-Handler::IRequest::msg_gen Api::h_get_auth_js(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
+msg_gen h_get_auth_js(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), auth_js, "text/javascript");
 }
 
-Handler::IRequest::msg_gen Api::h_post_auth_js(Handler::http::request<Handler::http::string_body>&& request_) {
+msg_gen h_post_auth_js(http::request<http::string_body>&& request_) {
 
     namespace pt = boost::property_tree;
-
-    spdlog::info("called {}", std::source_location::current().function_name());
 
     beast::error_code ec;
     boost::json::value req_json = boost::json::parse(request_.body(), ec);
@@ -154,7 +146,7 @@ Handler::IRequest::msg_gen Api::h_post_auth_js(Handler::http::request<Handler::h
         });
 
         if (!fut.get()) {
-            return Handler::IRequest::wrong_request(Handler::http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
+            return wrong_request(http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
         }
 
         pt::ptree resp_json;
@@ -180,23 +172,17 @@ Handler::IRequest::msg_gen Api::h_post_auth_js(Handler::http::request<Handler::h
     return res;
 }
 
-Handler::IRequest::msg_gen Api::h_get_register_html(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
+msg_gen h_get_register_html(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), register_html, "text/html");
 }
 
-Handler::IRequest::msg_gen Api::h_get_register_js(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
+msg_gen h_get_register_js(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), register_js, "text/javascript");
 }
 
-Handler::IRequest::msg_gen Api::h_post_register_js(Handler::http::request<Handler::http::string_body>&& request_) {
+msg_gen h_post_register_js(http::request<http::string_body>&& request_) {
 
     namespace pt = boost::property_tree;
-
-    spdlog::info("called {}", std::source_location::current().function_name());
 
     beast::error_code ec;
     boost::json::value req_json = boost::json::parse(request_.body(), ec);
@@ -212,7 +198,7 @@ Handler::IRequest::msg_gen Api::h_post_register_js(Handler::http::request<Handle
         });
 
         if (!fut.get()) {
-            return Handler::IRequest::wrong_request(Handler::http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
+            return wrong_request(http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));
         }
 
         pt::ptree resp_json;
@@ -238,17 +224,11 @@ Handler::IRequest::msg_gen Api::h_post_register_js(Handler::http::request<Handle
     return res;
 }
 
-Handler::IRequest::msg_gen Api::h_get_16x16_icon(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
-
+msg_gen h_get_16x16_icon(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), favicon_16x16, "image/png");
 }
 
-Handler::IRequest::msg_gen Api::h_get_32x32_icon(Handler::http::request<Handler::http::string_body>&& request_) {
-
-    spdlog::info("called {}", std::source_location::current().function_name());
-
+msg_gen h_get_32x32_icon(http::request<http::string_body>&& request_) {
     return prepare_response_with_file(std::move(request_), favicon_32x32, "image/png");
 }
-}
+} // Net::Api

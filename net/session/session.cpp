@@ -46,28 +46,22 @@ void Session::start_read() {
 void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
     std::ignore = bytes_transferred;
 
-    if (http::error::end_of_stream == ec)
-        return close_session();
-
-    if (ec)
-        return fail(ec, std::source_location::current().function_name());
+    if (ec) {
+        if (http::error::end_of_stream == ec) {
+            return close_session();
+        }
+        return fail(ec, "Session::handle_read");
+    }
 
     try {
-
-        spdlog::info("Request method {} and target {}", to_string(request_.method()), request_.target());
-
-        decltype(auto) request = Router::instance().get_wrapper(request_.method(), request_.target());
-        if (nullptr == request) {
-            start_write(Handler::IRequest::wrong_request(http::status::bad_request, "Illegal request-target", std::move(request_)));
-            return;
-        }
-
-        start_write(request->execute(std::move(request_)));
+        decltype(auto) handle = Router::instance().get_handler(request_.method(), request_.target());
+        start_write(handle(std::move(request_)));
     }
     catch (const std::out_of_range& ex) {
-        spdlog::info("Exteption caught: {}", ex.what());
-    }
+        spdlog::info("Out of range Exteption caught: {}", ex.what());
 
+        start_write(Api::Rest::wrong_request(http::status::bad_request, "Illegal request-target", std::move(request_)));
+    }
 }
 
 void Session::start_write(http::message_generator&& msg) {
@@ -88,7 +82,7 @@ void Session::handle_write(
     boost::ignore_unused(bytes_transferred);
 
     if (ec)
-        return fail(ec, std::source_location::current().function_name());
+        return fail(ec, "Session::handle_write");
 
     if (!keep_alive)
         return close_session();

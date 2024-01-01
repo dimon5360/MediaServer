@@ -13,7 +13,7 @@
 
 #include "core.h"
 #include "config.h"
-#include "http_server.h"
+#include "connection.h"
 #include "types.h"
 
 namespace App {
@@ -26,8 +26,8 @@ Core::~Core() {
     spdlog::info("Config class destructor");
 }
 
-std::shared_ptr<Core> Core::create() {
-    static std::shared_ptr<Core> core(new Core());
+const Core& Core::create() {
+    static Core core;
     return core;
 }
 
@@ -61,7 +61,7 @@ void Core::run() const noexcept {
     }
 
     boost::asio::post(work.get_io_context(), [&work, &endp]() {
-        Net::HttpServer::init(work.get_io_context(), endp)->setup_routing()->run();
+        Net::Http::Connection::init(work.get_io_context(), endp)->setup_routing()->run();
     });
 
     signals.async_wait([&work](const boost::system::error_code& error, int signal_number) {

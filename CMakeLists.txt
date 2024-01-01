@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 project(app LANGUAGES CXX VERSION 2.0.0)
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++-15")
-set(CMAKE_C_COMPILER "/usr/bin/clang-15")
+
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+set(CMAKE_C_COMPILER "/usr/bin/clang")
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(Boost_USE_STATIC_LIBS ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -pthread")
@@ -19,37 +21,44 @@ if(spdlog_NOT_FOUND)
     message(FATAL "spdlog not found!")
 endif()
 
-include(FetchContent)
-FetchContent_Declare(
-  gRPC
-  GIT_REPOSITORY https://github.com/grpc/grpc
-  GIT_TAG        v1.29.0
-)
-set(FETCHCONTENT_QUIET OFF)
-FetchContent_MakeAvailable(gRPC)
+# include(FetchContent)
 
-set(PQXX /usr/include/pqxx)
+# FetchContent_Declare(
+#   gRPC
+#   GIT_REPOSITORY https://github.com/grpc/grpc
+#   GIT_TAG        v1.29.0
+# )
+# set(FETCHCONTENT_QUIET OFF)
+# FetchContent_MakeAvailable(gRPC)
+# target_link_libraries(grpc++)
 
 find_library(PQXX_LIB pqxx)
 find_library(PQ_LIB pq)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} ${BOOST_DIR})
 
-
 set(INCLUDES
     ${workspaceFolder}
     ${workspaceFolder}core/
     ${workspaceFolder}net/
+    ${workspaceFolder}net/http/
+    ${workspaceFolder}net/api/rest/
+    ${workspaceFolder}net/router/
+    ${workspaceFolder}net/session/
     ${workspaceFolder}config/
+    ${workspaceFolder}db/
 )
 
 FILE(GLOB SOURCES
     ${workspaceFolder}*.cpp
     ${workspaceFolder}core/*.cpp
     ${workspaceFolder}net/*.cpp
-    ${workspaceFolder}net/*/*.cpp
-    ${workspaceFolder}net/*/*/*.cpp
+    ${workspaceFolder}net/api/rest/*.cpp
+    ${workspaceFolder}net/http/*.cpp
+    ${workspaceFolder}net/router/*.cpp
+    ${workspaceFolder}net/session/*.cpp
     ${workspaceFolder}config/*.cpp
+    ${workspaceFolder}db/*.cpp
 )
 
 include_directories (
@@ -65,11 +74,15 @@ message(STATUS "paths:")
 message(STATUS " - ${CMAKE_INSTALL_PREFIX}")
 message(STATUS " - ${PROJECT_SOURCE_DIR}")
 message(STATUS " - ${PROJECT_BINARY_DIR}")
-
+message(STATUS)
+message(STATUS "boost lib info:")
 message(STATUS " - ${Boost_DIR}")
 message(STATUS " - ${Boost_INCLUDE_DIR}")
 message(STATUS " - ${BoostLibs}")
-
+message(STATUS)
+message(STATUS "pqxx lib info:")
+message(STATUS " - ${PQXX_LIB}")
+message(STATUS " - ${PQ_LIB}")
 message(STATUS)
 message(STATUS "compiler:")
 message(STATUS " - ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
@@ -86,4 +99,4 @@ message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
-target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog pqxx grpc++)
+target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES})

@@ -24,7 +24,7 @@ int main() {
 
         spdlog::info("Application version v.{}.{}.{}.{}", major, minor, patch, build);
 
-        App::Core::create()->run();
+        App::Core::create().run();
     }
     catch (const std::exception& ex) {
         spdlog::error("The exception caught: {}", ex.what());

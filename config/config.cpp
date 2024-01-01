@@ -4,8 +4,9 @@
 namespace App {
 
 const Config& Config::instance() {
-    static std::shared_ptr<Config> config(new Config());
-    return *config.get();
+    // static std::shared_ptr<Config> config(new Config());
+    static Config config;
+    return config;
 }
 
 Config::Config() {
