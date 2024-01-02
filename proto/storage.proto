@@ -14,29 +14,26 @@
 
 syntax = "proto3";
 
-package grpc.testing;
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.helloworld";
+option java_outer_classname = "HelloWorldProto";
+option objc_class_prefix = "HLW";
 
-option objc_class_prefix = "AUTH";
-
-// Unary request.
-message Request {
-  // Whether Response should include username.
-  bool fill_username = 4;
-
-  // Whether Response should include OAuth scope.
-  bool fill_oauth_scope = 5;
+package helloworld;
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // Sends another greeting
+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
 }
 
-// Unary response, as configured by the request.
-message Response {
-  // The user the request came from, for verifying authentication was
-  // successful.
-  string username = 2;
-  // OAuth scope.
-  string oauth_scope = 3;
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
 }
 
-service TestService {
-  // One request followed by one response.
-  rpc UnaryCall(Request) returns (Response);
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
 }

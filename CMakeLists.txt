@@ -35,9 +35,13 @@ set(INCLUDES
     ${workspaceFolder}net/
     ${workspaceFolder}net/http/
     ${workspaceFolder}net/api/rest/
+    ${workspaceFolder}net/api/grpc/
     ${workspaceFolder}net/router/
     ${workspaceFolder}net/session/
     ${workspaceFolder}config/
+
+    # generated grpc files
+    ${PROTO_BINARY_DIR}/proto/
 )
 
 FILE(GLOB SOURCES
@@ -45,13 +49,11 @@ FILE(GLOB SOURCES
     ${workspaceFolder}core/*.cpp
     ${workspaceFolder}net/*.cpp
     ${workspaceFolder}net/api/rest/*.cpp
-    ${workspaceFolder}net/api/grpc/*.cpp
+    ${workspaceFolder}net/api/grpc/*.cc
     ${workspaceFolder}net/http/*.cpp
     ${workspaceFolder}net/router/*.cpp
     ${workspaceFolder}net/session/*.cpp
     ${workspaceFolder}config/*.cpp
-
-    ${workspaceFolder}/proto/*.cc
 )
 
 include_directories (
@@ -93,4 +95,4 @@ message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
-target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog grpc++ ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
+target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)

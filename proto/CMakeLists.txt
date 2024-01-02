@@ -33,7 +33,30 @@ FetchContent_GetProperties(Protobuf SOURCE_DIR Protobuf_SOURCE_DIR)
 include(${Protobuf_SOURCE_DIR}/cmake/protobuf-generate.cmake)
 
 add_library(proto OBJECT "${CMAKE_CURRENT_LIST_DIR}/storage.proto")
-target_link_libraries(proto PUBLIC protobuf::libprotobuf grpc++)
+target_link_libraries(proto PUBLIC protobuf::libprotobuf grpc++ grpc
+  absl::algorithm
+  absl::base
+  absl::debugging
+  absl::flat_hash_map
+  absl::flags
+  absl::flags_parse
+  absl::memory
+  absl::meta
+  absl::numeric
+  absl::random_random
+  absl::strings
+  absl::synchronization
+  absl::time
+  absl::utility
+  grpc++_reflection
+  ${_REFLECTION}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+)
+
+message(STATUS " - ${_REFLECTION}")
+message(STATUS " - ${_GRPC_GRPCPP}")
+message(STATUS " - ${_PROTOBUF_LIBPROTOBUF}")
 
 set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
