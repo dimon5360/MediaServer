@@ -112,7 +112,10 @@
         "hash_set": "cpp",
         "*.inc": "cpp",
         "__nullptr": "cpp",
-        "__string": "cpp"
+        "__string": "cpp",
+        "__availability": "cpp",
+        "filesystem": "cpp",
+        "__std_stream": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++-15",
     "C_Cpp.default.includePath": [

@@ -1,8 +1,8 @@
 
-#ifndef NET_SERVER_H
-#define NET_SERVER_H
+#ifndef NET_HTTP_CONNECTION_H
+#define NET_HTTP_CONNECTION_H
 
-#include "iconnection.h"
+#include "iconn.h"
 #include "session/session.h"
 
 namespace Net::Http {
@@ -14,7 +14,7 @@ class Connection : public IConnection, public std::enable_shared_from_this<Conne
 
 public:
 
-    static std::shared_ptr<Connection> init(service& ios, const endpoint& endp);
+    static std::shared_ptr<Connection> instance(service& ios, const boost::asio::ip::address& host, const u16 port);
 
     Connection() = delete;
     Connection(const Connection&) = delete;
@@ -44,4 +44,4 @@ private:
 };
 }
 
-#endif // NET_SERVER_H
+#endif // NET_HTTP_CONNECTION_H

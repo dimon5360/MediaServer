@@ -2,8 +2,13 @@
 #pragma once
 
 #include <boost/asio/thread_pool.hpp>
+#include <boost/thread.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/post.hpp>
 
 #include <memory>
+
+#include "thread_pool.h"
 
 namespace App {
 class Core {
@@ -18,12 +23,19 @@ public:
 
     ~Core();
 
+    const Core& config() const;
     void run() const noexcept;
 
 private:
     Core();
 
 private:
+    int threads_num = 1;
 
+    boost::asio::io_context ios;
+    mutable boost::asio::io_context::work work;
+    boost::asio::signal_set signals;
+
+    mutable ThreadPool pool;
 };
 }

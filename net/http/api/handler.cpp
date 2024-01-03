@@ -1,6 +1,7 @@
 
 #include "handler.h"
 #include "config.h"
+#include "grpc_conn.h"
 
 #include <string>
 #include <future>
@@ -145,6 +146,8 @@ msg_gen h_post_auth_js(http::request<http::string_body>&& request_) {
         decltype(auto) fut = std::async([&login, &password]() {
             return validateCreadentials(std::move(login), std::move(password));
         });
+
+        Net::Grpc::Connection::instance()->exchange("hello through gRPC");
 
         if (!fut.get()) {
             return wrong_request(http::status::unauthorized, errorOccured("Invalid login or password"), std::move(request_));

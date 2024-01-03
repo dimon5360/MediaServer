@@ -1,6 +1,6 @@
 
-#ifndef NET_INTERFACE_SERVER_H
-#define NET_INTERFACE_SERVER_H
+#ifndef NET_INTERFACE_CONNECTION_H
+#define NET_INTERFACE_CONNECTION_H
 
 #include <spdlog/spdlog.h>
 #include <boost/beast/core.hpp>
@@ -26,4 +26,4 @@ public:
 };
 }
 
-#endif // NET_INTERFACE_SERVER_H
+#endif // NET_INTERFACE_CONNECTION_H

@@ -27,7 +27,7 @@ ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
 class GreeterServiceImpl final : public Greeter::Service {
     Status SayHello(ServerContext* context, const HelloRequest* request,
         HelloReply* reply) override {
-        std::string prefix("Hello ");
+        std::string prefix("Reply from gRPC server -> ");
         reply->set_message(prefix + request->name());
         return Status::OK;
     }
@@ -54,7 +54,7 @@ void RunServer(uint16_t port) {
     server->Wait();
 }
 
-int server_main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     // absl::ParseCommandLine(argc, argv);
     RunServer(50051);
     return 0;

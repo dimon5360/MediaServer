@@ -1,7 +1,7 @@
 
 #include "router.h"
 #include "session/session.h"
-#include "api/rest/handler.h"
+#include "http/api/handler.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/beast.hpp>

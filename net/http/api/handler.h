@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef NET_API_REST_HANDLER_H
+#define NET_API_REST_HANDLER_H
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -45,3 +46,5 @@ msg_gen h_get_register_html(http::request<http::string_body>&& request_);
 msg_gen h_get_register_js(http::request<http::string_body>&& request_);
 msg_gen h_post_register_js(http::request<http::string_body>&& request_);
 }
+
+#endif // NET_API_REST_HANDLER_H

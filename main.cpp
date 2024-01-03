@@ -27,21 +27,23 @@ int main() {
 
         spdlog::info("Application version v.{}.{}.{}.{}", major, minor, patch, build);
 
-        auto grpc_cli = std::thread([&]() {
-            client_main();
-        });
+        // auto grpc_cli = std::thread([&]() {
+        //     client_main();
+        // });
 
-        auto grpc_srv = std::thread([&]() {
-            server_main(1, NULL);
-        });
+        // auto grpc_srv = std::thread([&]() {
+        //     server_main(1, NULL);
+        // });
 
-        grpc_cli.join();
-        grpc_srv.join();
+        // grpc_cli.join();
+        // grpc_srv.join();
 
-        App::Core::create().run();
+        App::Core::create().config().run();
     }
     catch (const std::exception& ex) {
         spdlog::error("The exception caught: {}", ex.what());
     }
+
+    spdlog::info("Application terminated correctly");
     return 0;
 }

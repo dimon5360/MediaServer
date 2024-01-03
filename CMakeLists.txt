@@ -34,8 +34,8 @@ set(INCLUDES
     ${workspaceFolder}core/
     ${workspaceFolder}net/
     ${workspaceFolder}net/http/
-    ${workspaceFolder}net/api/rest/
-    ${workspaceFolder}net/api/grpc/
+    ${workspaceFolder}net/http/api/
+    ${workspaceFolder}net/grpc/
     ${workspaceFolder}net/router/
     ${workspaceFolder}net/session/
     ${workspaceFolder}config/
@@ -48,9 +48,9 @@ FILE(GLOB SOURCES
     ${workspaceFolder}*.cpp
     ${workspaceFolder}core/*.cpp
     ${workspaceFolder}net/*.cpp
-    ${workspaceFolder}net/api/rest/*.cpp
-    ${workspaceFolder}net/api/grpc/*.cc
     ${workspaceFolder}net/http/*.cpp
+    ${workspaceFolder}net/http/api/*.cpp
+    ${workspaceFolder}net/grpc/*.cpp
     ${workspaceFolder}net/router/*.cpp
     ${workspaceFolder}net/session/*.cpp
     ${workspaceFolder}config/*.cpp
@@ -94,5 +94,8 @@ message(STATUS " - ${CMAKE_GENERATOR}")
 message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
+add_executable(grpc_server server.cc ${INCLUDES})
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
+
 target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
+target_link_libraries(grpc_server PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)

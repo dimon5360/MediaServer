@@ -1,4 +1,8 @@
 
+#ifndef NET_GRPC_CONNECTION_H
+#define NET_GRPC_CONNECTION_H
+
+#include "iconn.h"
 
 #include <iostream>
 #include <memory>
@@ -11,7 +15,7 @@
 
 #include <storage.grpc.pb.h>
 
-ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
+namespace Net::Grpc {
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -21,7 +25,14 @@ using helloworld::HelloReply;
 using helloworld::HelloRequest;
 
 class GreeterClient {
-public:
+
+    friend class Connection;
+
+protected:
+    GreeterClient() : stub_(nullptr) {
+
+    }
+
     GreeterClient(std::shared_ptr<Channel> channel)
         : stub_(Greeter::NewStub(channel)) { }
 
@@ -53,23 +64,40 @@ public:
         }
     }
 
+    bool IsInitied() {
+        return isInited;
+    }
+
 private:
     std::unique_ptr<Greeter::Stub> stub_;
+    bool isInited = false;
 };
 
-int client_main() {
-    // absl::ParseCommandLine(argc, argv);
-    // Instantiate the client. It requires a channel, out of which the actual RPCs
-    // are created. This channel models a connection to an endpoint specified by
-    // the argument "--target=" which is the only expected argument.
-    std::string target_str = "localhost:50051";//absl::GetFlag(FLAGS_target);
-    // We indicate that the channel isn't authenticated (use of
-    // InsecureChannelCredentials()).
-    GreeterClient greeter(
-        grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
-    std::string user("world");
-    std::string reply = greeter.SayHello(user);
-    std::cout << "Greeter received: " << reply << std::endl;
+class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 
-    return 0;
+public:
+
+    static std::shared_ptr<Connection> instance();
+
+    Connection(const Connection&) = delete;
+    Connection(Connection&&) = delete;
+    const Connection& operator=(const Connection&) = delete;
+    Connection&& operator=(Connection&&) = delete;
+
+    ~Connection();
+
+    void config(const std::string& host, const std::string& port);
+    void exchange(const std::string& msg);
+    void run();
+
+private:
+
+    Connection();
+
+private:
+
+    GreeterClient cli;
+};
 }
+
+#endif // NET_GRPC_CONNECTION_H

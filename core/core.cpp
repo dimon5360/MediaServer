@@ -1,9 +1,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <boost/asio/post.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <atomic>
@@ -13,17 +10,32 @@
 
 #include "core.h"
 #include "config.h"
-#include "connection.h"
+#include "http_conn.h"
+#include "grpc_conn.h"
 #include "types.h"
+#include "thread_pool.h"
 
 namespace App {
 
-Core::Core() {
-    spdlog::info("Config class constructor");
+Core::Core()
+    : threads_num(boost::thread::hardware_concurrency()),
+    ios(threads_num),
+    work(ios),
+    pool(threads_num, work),
+    signals(work.get_io_context(), SIGINT, SIGTERM) {
+
+    // signals handler
+    signals.async_wait([&work = work](const boost::system::error_code& error, int signal_number) {
+        std::ignore = error;
+        std::ignore = signal_number;
+        work.get_io_context().stop();
+    });
+
+    spdlog::info("Core class constructor");
 }
 
 Core::~Core() {
-    spdlog::info("Config class destructor");
+    spdlog::info("Core class destructor");
 }
 
 const Core& Core::create() {
@@ -31,45 +43,34 @@ const Core& Core::create() {
     return core;
 }
 
-void Core::run() const noexcept {
+const Core& Core::config() const {
 
     using Config = App::Config;
     using namespace boost::asio;
 
     decltype(auto) config(Config::instance());
-    const std::string host{ config["HOST"] };
-    const std::string port{ config["PORT"] };
 
-    spdlog::info("Start server listening {}:{}", host, port);
+    spdlog::info("Start server listening {}:{}", config["HTTP_HOST"], config["HTTP_PORT"]);
 
-    const ip::address ipaddr = ip::make_address(host);
-    const u16 ipport = boost::lexical_cast<u16>(port);
+    // create thread pool
+    pool.config();
 
-    const int N = boost::thread::hardware_concurrency();
-
-    boost::asio::io_service ios{ N };
-    ip::tcp::endpoint endp{ ipaddr, ipport };
-
-    boost::thread_group threads;
-    io_context::work work(ios);
-    signal_set signals(work.get_io_context(), SIGINT, SIGTERM);
-
-    for (int i = 0; i < N; ++i) {
-        threads.create_thread([&work]() {
-            work.get_io_context().run();
-        });
-    }
-
-    boost::asio::post(work.get_io_context(), [&work, &endp]() {
-        Net::Http::Connection::init(work.get_io_context(), endp)->setup_routing()->run();
+    // setup callback init http connection
+    pool.callback([&work = work, host = ip::make_address(config["HTTP_HOST"]), port = boost::lexical_cast<u16>(config["HTTP_PORT"])]() {
+        Net::Http::Connection::instance(work.get_io_context(), host, port)->setup_routing()->run();
     });
 
-    signals.async_wait([&work](const boost::system::error_code& error, int signal_number) {
-        std::ignore = error;
-        std::ignore = signal_number;
-        work.get_io_context().stop();
+    // setup callback init grpc connection
+    pool.callback([host = config["GRPC_HOST"], port = config["GRPC_PORT"]]() {
+        decltype(auto) inst(Net::Grpc::Connection::instance());
+        inst->config(host, port);
+        inst->run();
     });
 
-    threads.join_all();
+    return *this;
+}
+
+void Core::run() const noexcept {
+    pool.run();
 }
 }
