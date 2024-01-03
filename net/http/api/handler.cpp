@@ -23,7 +23,7 @@
 
 #include <pqxx/pqxx>
 
-namespace Net::Api::Rest {
+namespace Net::Http::Api {
 
 using method = boost::beast::http::verb;
 

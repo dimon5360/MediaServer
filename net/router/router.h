@@ -32,7 +32,7 @@ public:
 
     void init_routing();
 
-    Api::Rest::handler& get_handler(boost::beast::http::verb method, std::string_view api) {
+    Http::Api::handler& get_handler(boost::beast::http::verb method, std::string_view api) {
 
         std::string filtered_api{ api };
         if (filtered_api.ends_with('/')) {
@@ -44,7 +44,7 @@ public:
 private:
 
     template<boost::beast::http::verb method>
-    void set_handler(const std::string& api, const Api::Rest::handler& handler) {
+    void set_handler(const std::string& api, const Http::Api::handler& handler) {
 
         std::string filtered_api{ api };
         if (filtered_api.ends_with('/')) {
@@ -59,7 +59,7 @@ private:
 
 private:
 
-    std::map<router_key, Api::Rest::handler, std::less<>> routing_;
+    std::map<router_key, Http::Api::handler, std::less<>> routing_;
 };
 
 }

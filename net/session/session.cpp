@@ -60,7 +60,7 @@ void Session::handle_read(beast::error_code ec, std::size_t bytes_transferred) {
     catch (const std::out_of_range& ex) {
         spdlog::info("Out of range Exteption caught: {}", ex.what());
 
-        start_write(Api::Rest::wrong_request(http::status::bad_request, "Illegal request-target", std::move(request_)));
+        start_write(Http::Api::wrong_request(http::status::bad_request, "Illegal request-target", std::move(request_)));
     }
 }
 

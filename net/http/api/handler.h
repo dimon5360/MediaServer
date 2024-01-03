@@ -11,7 +11,7 @@
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
 
-namespace Net::Api::Rest {
+namespace Net::Http::Api {
 
 namespace beast = boost::beast;
 namespace http = beast::http;
