@@ -52,12 +52,14 @@ const Core& Core::config() const {
 
     spdlog::info("Start server listening {}:{}", config["HTTP_HOST"], config["HTTP_PORT"]);
 
-    // create thread pool
+    // config thread pool
     pool.config();
 
     // setup callback init http connection
-    pool.callback([&work = work, host = ip::make_address(config["HTTP_HOST"]), port = boost::lexical_cast<u16>(config["HTTP_PORT"])]() {
-        Net::Http::Connection::instance(work.get_io_context(), host, port)->setup_routing()->run();
+    pool.callback([&work = work, host = config["HTTP_HOST"], port = config["HTTP_PORT"]]() {
+        decltype(auto) inst(Net::Http::Connection::instance(work.get_io_context()));
+        inst->config(host, port);
+        inst->run();
     });
 
     // setup callback init grpc connection

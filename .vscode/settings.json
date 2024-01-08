@@ -119,12 +119,16 @@
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++-15",
     "C_Cpp.default.includePath": [
-        "-I${workspaceFolder}/**",
-        "-I${workspaceFolder}/core/**",
-        "-I${workspaceFolder}/net/**",
-        "${workspaceFolder}/net/handler/**",
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/core/**",
+        "${workspaceFolder}/net/**",
+        "${workspaceFolder}/net/grpc/**",
+        "${workspaceFolder}/net/http/**",
+        "${workspaceFolder}/net/http/api/**",
         "${workspaceFolder}/net/router/**",
-        "-I${workspaceFolder}/config/**"
+        "${workspaceFolder}/net/session/**",
+        "${workspaceFolder}/config/**",
+        "${workspaceFolder}/build/generated/**"
     ],
     "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
 }

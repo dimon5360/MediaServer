@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.8)
-
+cmake_minimum_required(VERSION 3.28)
+ 
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 set(ABSL_ENABLE_INSTALL ON)
@@ -59,6 +59,7 @@ message(STATUS " - ${_GRPC_GRPCPP}")
 message(STATUS " - ${_PROTOBUF_LIBPROTOBUF}")
 
 set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY ${PROTO_BINARY_DIR})
 
 target_include_directories(proto PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
 

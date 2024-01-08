@@ -6,6 +6,7 @@
 #include <boost/thread.hpp>
 #include <boost/asio/thread_pool.hpp>
 
+namespace App {
 class ThreadPool {
 
 public:
@@ -23,5 +24,6 @@ private:
     boost::asio::io_context::work work;
     boost::thread_group threads;
 };
+}
 
 #endif // CORE_THREAD_POOL_H

@@ -14,7 +14,7 @@ class Connection : public IConnection, public std::enable_shared_from_this<Conne
 
 public:
 
-    static std::shared_ptr<Connection> instance(service& ios, const boost::asio::ip::address& host, const u16 port);
+    static std::shared_ptr<Connection> instance(service& ios);
 
     Connection() = delete;
     Connection(const Connection&) = delete;
@@ -25,11 +25,11 @@ public:
     ~Connection();
 
     void run() noexcept;
-    std::shared_ptr<Connection> setup_routing();
+    void config(const std::string& host, const std::string& port);
 
 private:
 
-    Connection(service& ios, const endpoint& endp);
+    Connection(service& ios);
 
     void start_accept();
     void handle_accept(beast::error_code ec, tcp::socket socket);

@@ -4,6 +4,8 @@
 #include <spdlog/spdlog.h>
 #include <boost/asio/post.hpp>
 
+namespace App {
+
 ThreadPool::ThreadPool(const int num, boost::asio::io_context::work& work) :
     num(num),
     work(work) {
@@ -25,4 +27,5 @@ void ThreadPool::config() {
 
 void ThreadPool::callback(std::function<void()> f) {
     boost::asio::post(work.get_io_context(), f);
+}
 }
