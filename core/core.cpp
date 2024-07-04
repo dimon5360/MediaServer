@@ -11,9 +11,13 @@
 #include "core.h"
 #include "config.h"
 #include "http_conn.h"
-#include "grpc_conn.h"
+
 #include "types.h"
 #include "thread_pool.h"
+
+#if 0
+#include "grpc_conn.h"
+#endif 
 
 namespace App {
 
@@ -62,12 +66,14 @@ const Core& Core::config() const {
         inst->run();
     });
 
+#if 0
     // setup callback init grpc connection
     pool.callback([host = config["GRPC_HOST"], port = config["GRPC_PORT"]]() {
         decltype(auto) inst(Net::Grpc::Connection::instance());
         inst->config(host, port);
         inst->run();
     });
+#endif
 
     return *this;
 }

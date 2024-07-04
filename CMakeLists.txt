@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.22)
 project(app LANGUAGES CXX VERSION 2.0.0)
 
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++-15")
+set(CMAKE_C_COMPILER "/usr/bin/clang-15")
 set(CMAKE_CXX_STANDARD 20)
 set(Boost_USE_STATIC_LIBS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,6 +12,10 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
+# application build config
+set(GRPC_ENABLED false)
+
+# application dependencies
 find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
 if(Boost_NOT_FOUND)
     message(FATAL "Boost not found!")
@@ -22,10 +26,10 @@ if(spdlog_NOT_FOUND)
     message(FATAL "spdlog not found!")
 endif()
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/proto/CMakeLists.txt)
-
 find_library(PQXX_LIB pqxx)
 find_library(PQ_LIB pq)
+
+# include(${CMAKE_CURRENT_SOURCE_DIR}/proto/CMakeLists.txt)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} ${BOOST_DIR})
 
@@ -35,13 +39,13 @@ set(INCLUDES
     ${workspaceFolder}net/
     ${workspaceFolder}net/http/
     ${workspaceFolder}net/http/api/
-    ${workspaceFolder}net/grpc/
     ${workspaceFolder}net/router/
     ${workspaceFolder}net/session/
     ${workspaceFolder}config/
-
+    # ${workspaceFolder}net/grpc/
+    
     # generated grpc files
-    ${PROTO_BINARY_DIR}/proto/
+    # ${PROTO_BINARY_DIR}/proto/
 )
 
 FILE(GLOB SOURCES
@@ -50,10 +54,11 @@ FILE(GLOB SOURCES
     ${workspaceFolder}net/*.cpp
     ${workspaceFolder}net/http/*.cpp
     ${workspaceFolder}net/http/api/*.cpp
-    ${workspaceFolder}net/grpc/*.cpp
     ${workspaceFolder}net/router/*.cpp
     ${workspaceFolder}net/session/*.cpp
     ${workspaceFolder}config/*.cpp
+
+    # ${workspaceFolder}net/grpc/*.cpp
 )
 
 include_directories (
@@ -62,6 +67,8 @@ include_directories (
 )
 
 set(BoostLibs ${Boost_LIBRARIES} ${Boost_DATE_TIME_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+
+# display application build status
 
 message(STATUS "system: ${CMAKE_SYSTEM}")
 message(STATUS "build_type: ${CMAKE_BUILD_TYPE}")
@@ -94,8 +101,14 @@ message(STATUS " - ${CMAKE_GENERATOR}")
 message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
-add_executable(grpc_server server.cc ${INCLUDES})
+# executable application config
+
+# add_executable(grpc_server server.cc ${INCLUDES})
 add_executable(app main.cpp ${SOURCES} ${INCLUDES})
 
-target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
-target_link_libraries(grpc_server PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
+
+
+# linker application config
+
+target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} )#proto)
+# target_link_libraries(grpc_server PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
