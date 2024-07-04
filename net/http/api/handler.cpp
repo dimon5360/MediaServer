@@ -35,16 +35,16 @@ namespace http = beast::http;
 
 namespace {
 
-const std::string favicon_16x16{ "../static/icons/favicon-16x16.png" };
-const std::string favicon_32x32{ "../static/icons/favicon-32x32.png" };
+const std::string favicon_16x16{ "./static/icons/favicon-16x16.png" };
+const std::string favicon_32x32{ "./static/icons/favicon-32x32.png" };
 
-const std::string index_html{ "../static/html/index.html" };
+const std::string index_html{ "./static/html/index.html" };
 
-const std::string auth_html{ "../static/html/auth.html" };
-const std::string register_html{ "../static/html/register.html" };
+const std::string auth_html{ "./static/html/auth.html" };
+const std::string register_html{ "./static/html/register.html" };
 
-const std::string auth_js{ "../static/js/auth.js" };
-const std::string register_js{ "../static/js/register.js" };
+const std::string auth_js{ "./static/js/auth.js" };
+const std::string register_js{ "./static/js/register.js" };
 
 const auto wrongFile = [](std::string_view resource) -> decltype(auto) {
     return boost::str(boost::format("The resourse '%1%' was not found.") % resource);

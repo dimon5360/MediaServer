@@ -30,12 +30,12 @@ private:
     Core();
 
 private:
-    int threads_num = 1;
+    int _threads_num = 1;
 
-    boost::asio::io_context ios;
-    mutable boost::asio::io_context::work work;
-    boost::asio::signal_set signals;
+    boost::asio::io_context _ios;
+    mutable boost::asio::io_context::work _work;
+    boost::asio::signal_set _signals;
 
-    mutable ThreadPool pool;
+    mutable ThreadPool _pool;
 };
 }

@@ -30,8 +30,7 @@ public:
     template<typename ... Ts>
     const Config& parseEnv(Ts ... args) const {
 
-        std::vector<std::common_type_t<Ts...>> vec_{ args... };
-        for (const auto& file : vec_) {
+        for (std::vector<std::common_type_t<Ts...>> vec_{ args... }; const auto& file : vec_) {
 
             std::fstream f(file, std::ios_base::in);
             if (!f.is_open()) {

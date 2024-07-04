@@ -4,21 +4,23 @@
 #include "config.h"
 #include "core.h"
 
-namespace {
-const std::string appEnv{ "../env/app.env" };
-const std::string apiEnv{ "../env/api.env" };
-const std::string dbEnv{ "../env/db.env" };
+#include <boost/process.hpp>
+
+namespace 
+{
+    const std::string appEnv{ "../env/app.env" };
+    const std::string apiEnv{ "../env/api.env" };
+    const std::string dbEnv{ "../env/db.env" };
 }
 
-extern int server_main(int, char**);
-extern int client_main();
-
-int main() {
+int main() 
+{
     spdlog::info("Welcome media server");
 
     try {
 
-        decltype(auto) config = App::Config::instance().parseEnv(appEnv, apiEnv, dbEnv);
+        const auto env_p = std::string(std::getenv("PWD"));
+        decltype(auto) config = App::Config::instance().parseEnv(env_p + "/.env");
 
         auto major = config["MAJOR"];
         auto minor = config["MINOR"];
@@ -26,17 +28,6 @@ int main() {
         auto build = config["BUILD"];
 
         spdlog::info("Application version v.{}.{}.{}.{}", major, minor, patch, build);
-
-        // auto grpc_cli = std::thread([&]() {
-        //     client_main();
-        // });
-
-        // auto grpc_srv = std::thread([&]() {
-        //     server_main(1, NULL);
-        // });
-
-        // grpc_cli.join();
-        // grpc_srv.join();
 
         App::Core::create().config().run();
     }

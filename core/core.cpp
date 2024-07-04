@@ -21,15 +21,15 @@
 
 namespace App {
 
-Core::Core()
-    : threads_num(boost::thread::hardware_concurrency()),
-    ios(threads_num),
-    work(ios),
-    pool(threads_num, work),
-    signals(work.get_io_context(), SIGINT, SIGTERM) {
+Core::Core() : 
+    _threads_num(boost::thread::hardware_concurrency()),
+    _ios(_threads_num),
+    _work(_ios),
+    _signals(_work.get_io_context(), SIGINT, SIGTERM),
+    _pool(_threads_num, _work) {
 
     // signals handler
-    signals.async_wait([&work = work](const boost::system::error_code& error, int signal_number) {
+    _signals.async_wait([&work = _work](const boost::system::error_code& error, int signal_number) {
         std::ignore = error;
         std::ignore = signal_number;
         work.get_io_context().stop();
@@ -57,10 +57,10 @@ const Core& Core::config() const {
     spdlog::info("Start server listening {}:{}", config["HTTP_HOST"], config["HTTP_PORT"]);
 
     // config thread pool
-    pool.config();
+    _pool.config();
 
     // setup callback init http connection
-    pool.callback([&work = work, host = config["HTTP_HOST"], port = config["HTTP_PORT"]]() {
+    _pool.callback([&work = _work, host = config["HTTP_HOST"], port = config["HTTP_PORT"]]() {
         decltype(auto) inst(Net::Http::Connection::instance(work.get_io_context()));
         inst->config(host, port);
         inst->run();
@@ -79,6 +79,6 @@ const Core& Core::config() const {
 }
 
 void Core::run() const noexcept {
-    pool.run();
+    _pool.run();
 }
 }

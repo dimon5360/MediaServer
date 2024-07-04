@@ -4,11 +4,17 @@ project(app LANGUAGES CXX VERSION 2.0.0)
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++-15")
 set(CMAKE_C_COMPILER "/usr/bin/clang-15")
 set(CMAKE_CXX_STANDARD 20)
-set(Boost_USE_STATIC_LIBS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(ABSL_PROPAGATE_CXX_STD ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_BUILD_TYPE Debug)
+
+set(ABSL_PROPAGATE_CXX_STD ON)
+
+set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
+set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
@@ -16,7 +22,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 set(GRPC_ENABLED false)
 
 # application dependencies
-find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
+if(POLICY CMP0074)
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
+set(BOOST_HINTS)
+
+if(USE_STAGED_BOOST)
+    set(BOOST_HINTS HINTS ../../../../stage)
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/BoostConfig.cmake)
+
+find_package(Boost ${BOOST_VERSION} CONFIG REQUIRED program_options chrono filesystem thread system date_time context)
 if(Boost_NOT_FOUND)
     message(FATAL "Boost not found!")
 endif()
@@ -64,6 +82,7 @@ FILE(GLOB SOURCES
 include_directories (
     ${INCLUDES}
     ${Boost_INCLUDE_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 
 set(BoostLibs ${Boost_LIBRARIES} ${Boost_DATE_TIME_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
@@ -104,9 +123,7 @@ message(STATUS)
 # executable application config
 
 # add_executable(grpc_server server.cc ${INCLUDES})
-add_executable(app main.cpp ${SOURCES} ${INCLUDES})
-
-
+add_executable(app cmd/main.cc ${SOURCES} ${INCLUDES})
 
 # linker application config
 
