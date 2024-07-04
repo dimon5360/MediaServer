@@ -3,7 +3,7 @@ project(app LANGUAGES CXX VERSION 2.0.0)
 
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++-15")
 set(CMAKE_C_COMPILER "/usr/bin/clang-15")
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_BUILD_TYPE Debug)
@@ -52,37 +52,37 @@ find_library(PQ_LIB pq)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} ${BOOST_DIR})
 
 set(INCLUDES
-    ${workspaceFolder}
-    ${workspaceFolder}core/
-    ${workspaceFolder}net/
-    ${workspaceFolder}net/http/
-    ${workspaceFolder}net/http/api/
-    ${workspaceFolder}net/router/
-    ${workspaceFolder}net/session/
-    ${workspaceFolder}config/
-    # ${workspaceFolder}net/grpc/
-    
+    ${workspaceFolder}source/core/
+    ${workspaceFolder}source/net/
+    ${workspaceFolder}source/net/http/
+    ${workspaceFolder}source/net/http/api/
+    ${workspaceFolder}source/net/router/
+    ${workspaceFolder}source/net/session/
+    ${workspaceFolder}source/config/
+    ${workspaceFolder}source/service/
+
+    # ${workspaceFolder}source/net/grpc/
+
     # generated grpc files
-    # ${PROTO_BINARY_DIR}/proto/
+    # ${PROTO_BINARY_DIR}/source/proto/
 )
 
 FILE(GLOB SOURCES
-    ${workspaceFolder}*.cpp
-    ${workspaceFolder}core/*.cpp
-    ${workspaceFolder}net/*.cpp
-    ${workspaceFolder}net/http/*.cpp
-    ${workspaceFolder}net/http/api/*.cpp
-    ${workspaceFolder}net/router/*.cpp
-    ${workspaceFolder}net/session/*.cpp
-    ${workspaceFolder}config/*.cpp
+    ${workspaceFolder}source/core/*.cc
+    ${workspaceFolder}source/net/*.cc
+    ${workspaceFolder}source/net/http/*.cc
+    ${workspaceFolder}source/net/http/api/*.cc
+    ${workspaceFolder}source/net/router/*.cc
+    ${workspaceFolder}source/net/session/*.cc
+    ${workspaceFolder}source/config/*.cc
+    ${workspaceFolder}source/service/*.cc
 
-    # ${workspaceFolder}net/grpc/*.cpp
+    # ${workspaceFolder}net/grpc/*.cc
 )
 
 include_directories (
     ${INCLUDES}
     ${Boost_INCLUDE_DIR}
-    ${Boost_INCLUDE_DIRS}
 )
 
 set(BoostLibs ${Boost_LIBRARIES} ${Boost_DATE_TIME_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
@@ -122,7 +122,7 @@ message(STATUS)
 
 # executable application config
 
-# add_executable(grpc_server server.cc ${INCLUDES})
+# add_executable(grpc_server test_grpc_server.cc ${INCLUDES})
 add_executable(app cmd/main.cc ${SOURCES} ${INCLUDES})
 
 # linker application config

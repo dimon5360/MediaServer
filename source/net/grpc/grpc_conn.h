@@ -1,4 +1,5 @@
 
+#if 0
 #ifndef NET_GRPC_CONNECTION_H
 #define NET_GRPC_CONNECTION_H
 
@@ -101,3 +102,5 @@ private:
 }
 
 #endif // NET_GRPC_CONNECTION_H
+
+#endif

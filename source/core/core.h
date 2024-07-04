@@ -37,5 +37,7 @@ private:
     boost::asio::signal_set _signals;
 
     mutable ThreadPool _pool;
+
+    // inline static Core _core;
 };
 }

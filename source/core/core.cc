@@ -17,11 +17,11 @@
 
 #if 0
 #include "grpc_conn.h"
-#endif 
+#endif
 
 namespace App {
 
-Core::Core() : 
+Core::Core() :
     _threads_num(boost::thread::hardware_concurrency()),
     _ios(_threads_num),
     _work(_ios),
@@ -72,7 +72,7 @@ const Core& Core::config() const {
         decltype(auto) inst(Net::Grpc::Connection::instance());
         inst->config(host, port);
         inst->run();
-    });
+});
 #endif
 
     return *this;

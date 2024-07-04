@@ -1,4 +1,5 @@
 
+#if 0
 #include "grpc_conn.h"
 
 namespace Net::Grpc {
@@ -34,3 +35,4 @@ void Connection::exchange(const std::string& msg) {
 }
 
 }
+#endif

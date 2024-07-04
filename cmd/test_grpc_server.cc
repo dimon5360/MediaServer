@@ -1,4 +1,5 @@
 
+#if 0
 #include <iostream>
 #include <memory>
 #include <string>
@@ -55,7 +56,8 @@ void RunServer(uint16_t port) {
 }
 
 int main(int argc, char* argv[]) {
-    // absl::ParseCommandLine(argc, argv);
     RunServer(50051);
     return 0;
 }
+
+#endif
