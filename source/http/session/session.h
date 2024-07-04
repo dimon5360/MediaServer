@@ -54,7 +54,7 @@ private:
         beast::error_code ec,
         std::size_t bytes_transferred);
 
-    const void fail(beast::error_code ec, std::string&& info) const;
+    void fail(beast::error_code ec, std::string&& info) const;
     void close_session();
 
 private:

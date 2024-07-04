@@ -1,4 +1,7 @@
 
+#include <cstdlib>
+#include <iostream>
+
 #include <spdlog/spdlog.h>
 
 #include "config.h"
@@ -11,11 +14,13 @@ const std::string dbEnv{ "../env/db.env" };
 }
 
 int main() {
+
     spdlog::info("Welcome media server");
 
     try {
 
-        decltype(auto) config = App::Config::instance().parseEnv(appEnv, apiEnv, dbEnv);
+        const auto env_p = std::string(std::getenv("PWD"));
+        decltype(auto) config = App::Config::instance().parseEnv(env_p + "/.env");
 
         auto major = config["MAJOR"];
         auto minor = config["MINOR"];

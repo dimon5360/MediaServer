@@ -9,6 +9,8 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -pthread")
 
+set(ENABLE_GRPC 0)
+
 find_package(Boost COMPONENTS program_options chrono filesystem thread system date_time context REQUIRED)
 if(Boost_NOT_FOUND)
     message(FATAL "Boost not found!")
@@ -19,14 +21,16 @@ if(spdlog_NOT_FOUND)
     message(FATAL "spdlog not found!")
 endif()
 
-include(FetchContent)
-FetchContent_Declare(
-  gRPC
-  GIT_REPOSITORY https://github.com/grpc/grpc
-  GIT_TAG        v1.29.0
-)
-set(FETCHCONTENT_QUIET OFF)
-FetchContent_MakeAvailable(gRPC)
+if(ENABLE_GRPC)
+    include(FetchContent)
+    FetchContent_Declare(
+    gRPC
+    GIT_REPOSITORY https://github.com/grpc/grpc
+    GIT_TAG        v1.29.0
+    )
+    set(FETCHCONTENT_QUIET OFF)
+    FetchContent_MakeAvailable(gRPC)
+endif()
 
 set(PQXX /usr/include/pqxx)
 
@@ -35,21 +39,22 @@ find_library(PQ_LIB pq)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} ${BOOST_DIR})
 
-
 set(INCLUDES
-    ${workspaceFolder}
-    ${workspaceFolder}core/
-    ${workspaceFolder}net/
-    ${workspaceFolder}config/
+    ${workspaceFolder}source/core/
+    ${workspaceFolder}source/http/
+    ${workspaceFolder}source/config/
+    ${workspaceFolder}source/service/
 )
 
 FILE(GLOB SOURCES
-    ${workspaceFolder}*.cpp
-    ${workspaceFolder}core/*.cpp
-    ${workspaceFolder}net/*.cpp
-    ${workspaceFolder}net/*/*.cpp
-    ${workspaceFolder}net/*/*/*.cpp
-    ${workspaceFolder}config/*.cpp
+    ${workspaceFolder}source/core/*.cpp
+    ${workspaceFolder}source/http/*.cpp
+    ${workspaceFolder}source/http/session/*.cpp
+    ${workspaceFolder}source/http/router/*.cpp
+    ${workspaceFolder}source/http/api/*.cpp
+    ${workspaceFolder}source/http/api/handlers/*.cpp
+    ${workspaceFolder}source/config/*.cpp
+    ${workspaceFolder}source/service/*.cc
 )
 
 include_directories (
@@ -77,6 +82,7 @@ message(STATUS " - ${CMAKE_CXX_COMPILER}")
 message(STATUS " - ${CMAKE_C_COMPILER}")
 message(STATUS " - ${CMAKE_CXX_FLAGS}")
 message(STATUS)
+
 message(STATUS "cmake:")
 message(STATUS " - ${CMAKE_VERSION}")
 message(STATUS " - ${CMAKE_COMMAND}")
@@ -85,5 +91,10 @@ message(STATUS " - ${CMAKE_GENERATOR}")
 message(STATUS " - ${CMAKE_BUILD_TOOL}")
 message(STATUS)
 
-add_executable(app main.cpp ${SOURCES} ${INCLUDES})
+add_executable(app cmd/main.cc ${SOURCES} ${INCLUDES})
+
+if(ENABLE_GRPC)
 target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog pqxx grpc++)
+else()
+target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog pqxx)
+endif()

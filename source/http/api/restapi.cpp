@@ -34,7 +34,7 @@ namespace {
 const std::string favicon_16x16{ "../static/icons/favicon-16x16.png" };
 const std::string favicon_32x32{ "../static/icons/favicon-32x32.png" };
 
-const std::string index_html{ "../static/html/index.html" };
+const std::string index_html{ "./static/html/index.html" };
 
 const std::string auth_html{ "../static/html/auth.html" };
 const std::string register_html{ "../static/html/register.html" };

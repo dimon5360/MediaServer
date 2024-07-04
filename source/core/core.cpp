@@ -26,9 +26,10 @@ Core::~Core() {
     spdlog::info("Config class destructor");
 }
 
-std::shared_ptr<Core> Core::create() {
-    static std::shared_ptr<Core> core(new Core());
-    return core;
+std::shared_ptr<Core> Core::create() 
+{
+    static std::shared_ptr<Core> _core(new Core());
+    return _core;
 }
 
 void Core::run() const noexcept {

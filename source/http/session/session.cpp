@@ -96,7 +96,7 @@ void Session::handle_write(
     start_read();
 }
 
-const void Session::fail(beast::error_code ec, std::string&& info) const {
+void Session::fail(beast::error_code ec, std::string&& info) const {
     spdlog::error("Got sesssion error {} in function {}", ec.message(), std::move(info));
 }
 

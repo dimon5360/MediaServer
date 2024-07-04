@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace App {
-class Core {
+class Core : public std::enable_shared_from_this<Core> {
 public:
 
     static std::shared_ptr<Core> create();
