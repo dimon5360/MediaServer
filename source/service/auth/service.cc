@@ -1,31 +1,38 @@
 
-#include <exception>
+#include <memory>
 #include <source_location>
 
-#include "auth/service.h"
+#include "service.h"
+#include "core.h"
 
-namespace Service::Auth {
+namespace Service {
 
 constexpr bool verbose = false;
 
-Instance::Instance() {
-    if (verbose) spdlog::debug("auth service class constructor");
+Authentication::Authentication() {
+    spdlog::debug("authentication service class constructor");
 }
 
-Instance::~Instance() {
-    if (verbose) spdlog::debug("auth service class destructor");
+Authentication::~Authentication() {
+    spdlog::debug("authentication service class destructor");
 }
 
-void Instance::Init() const {
+interface_ptr Authentication::Instance() {
+    return interface_ptr(new Authentication()); // TODO: fix calling new()
+}
+
+void Authentication::Init() const {
     if (verbose) {
         spdlog::info("called {} not implemented", std::source_location::current().function_name());
     }
 }
 
-void Instance::Run() const {
+void Authentication::Run() const {
     if (verbose) {
         spdlog::info("called {} not implemented", std::source_location::current().function_name());
     }
+
+    App::Core::create().config().run();
 }
 
 } // namespace Service::Auth

@@ -10,6 +10,8 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(ABSL_PROPAGATE_CXX_STD ON)
 
+set(TEST_START 0)
+
 set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
 set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
 set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
@@ -60,6 +62,7 @@ set(INCLUDES
     ${workspaceFolder}source/net/session/
     ${workspaceFolder}source/config/
     ${workspaceFolder}source/service/
+    ${workspaceFolder}source/service/auth/
 
     # ${workspaceFolder}source/net/grpc/
 
@@ -76,6 +79,7 @@ FILE(GLOB SOURCES
     ${workspaceFolder}source/net/session/*.cc
     ${workspaceFolder}source/config/*.cc
     ${workspaceFolder}source/service/*.cc
+    ${workspaceFolder}source/service/auth/*.cc
 
     # ${workspaceFolder}net/grpc/*.cc
 )
@@ -122,10 +126,10 @@ message(STATUS)
 
 # executable application config
 
-# add_executable(grpc_server test_grpc_server.cc ${INCLUDES})
+if(TEST_START)
+    add_executable(grpc_server test_grpc_server.cc ${INCLUDES})
+    target_link_libraries(grpc_server PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)
+endif(TEST_START)
+
 add_executable(app cmd/main.cc ${SOURCES} ${INCLUDES})
-
-# linker application config
-
 target_link_libraries(app PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} )#proto)
-# target_link_libraries(grpc_server PRIVATE ${BoostLibs} spdlog::spdlog ${PQXX_LIB} ${PQXX_LIBRARIES} proto)

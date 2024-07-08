@@ -10,8 +10,8 @@
                 "${workspaceFolder}/source/net/http/api",
                 "${workspaceFolder}/source/net/router",
                 "${workspaceFolder}/source/net/session",
-                "${workspaceFolder}/source/config",
-                "${workspaceFolder}/source/service"
+                "${workspaceFolder}/source/service",
+                "${workspaceFolder}/source/config"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang++-15",
@@ -27,8 +27,8 @@
                     "${workspaceFolder}/source/net/http/api",
                     "${workspaceFolder}/source/net/router",
                     "${workspaceFolder}/source/net/session",
-                    "${workspaceFolder}/source/config",
-                    "${workspaceFolder}/source/service"
+                    "${workspaceFolder}/source/service",
+                    "${workspaceFolder}/source/config"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
@@ -44,8 +44,8 @@
                 "${workspaceFolder}/source/net/http/api",
                 "${workspaceFolder}/source/net/router",
                 "${workspaceFolder}/source/net/session",
-                "${workspaceFolder}/source/config",
-                "${workspaceFolder}/source/service"
+                "${workspaceFolder}/source/service",
+                "${workspaceFolder}/source/config"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang++",
@@ -61,8 +61,8 @@
                     "${workspaceFolder}/source/net/http/api",
                     "${workspaceFolder}/source/net/router",
                     "${workspaceFolder}/source/net/session",
-                    "${workspaceFolder}/source/config",
-                    "${workspaceFolder}/source/service"
+                    "${workspaceFolder}/source/service",
+                    "${workspaceFolder}/source/config"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },

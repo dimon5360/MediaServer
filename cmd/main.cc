@@ -1,16 +1,14 @@
 
 #include <spdlog/spdlog.h>
+#include <boost/process.hpp>
 
 #include "config.h"
-#include "core.h"
-
-#include <boost/process.hpp>
+#include "provider.h"
 
 int main() {
     spdlog::info("Welcome media server");
 
     try {
-
         const char* pwd = std::getenv("PWD");
         assert(pwd != nullptr);
 
@@ -23,7 +21,9 @@ int main() {
 
         spdlog::info("Application version v.{}.{}.{}.{}", major, minor, patch, build);
 
-        App::Core::create().config().run();
+        Service::Provider provider;
+
+        provider.AuthService();
     }
     catch (const std::exception& ex) {
         spdlog::error("The exception caught: {}", ex.what());

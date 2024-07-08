@@ -1,16 +1,30 @@
 
 #pragma once
 
-#include "iservice.h"
+#include "interface.h"
+#include "provider.h"
 
-namespace Service::Auth {
+#include <utility>
 
-class Instance final : public Service::Interface {
+namespace Service {
+
+class Authentication : public Service::Interface {
+
+private:
+
+    Authentication();
 
 public:
 
-    Instance();
-    ~Instance() override;
+    static interface_ptr Instance();
+
+    Authentication(const Authentication&) = delete;
+    Authentication& operator=(const Authentication&) = delete;
+
+    Authentication(Authentication&&) = delete;
+    Authentication& operator=(Authentication&&) = delete;
+
+    ~Authentication() override;
 
     void Init() const override;
     void Run() const override;

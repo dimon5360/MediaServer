@@ -5,27 +5,27 @@
 
 namespace Service {
 
-constexpr bool verbose = false;
-
 class Interface {
 
 public:
+
+    Interface() {
+        spdlog::debug("base service class constructor");
+    }
 
     Interface(const Interface&) = delete;
     Interface(Interface&&) = delete;
     Interface& operator= (const Interface&) = delete;
     Interface& operator= (Interface&&) = delete;
 
-    Interface() {
-        if (verbose) spdlog::debug("base service class constructor");
-    }
-
     virtual ~Interface() {
-        if (verbose) spdlog::debug("base service class destructor");
+        spdlog::debug("base service class destructor");
     }
 
     virtual void Init() const = 0;
     virtual void Run() const = 0;
 };
 
-} // Service
+using interface_ptr = std::shared_ptr<Interface>;
+
+} // namespace Service
